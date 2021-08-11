@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/bind.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/thread/condition_variable.hpp> // for boost::thread_interrupted
 
