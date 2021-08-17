@@ -539,3 +539,9 @@ endif
 if ENABLE_QT_TESTS
 include Makefile.qttest.include
 endif
+
+# Trade Layer
+include Makefile.tradelayer.include
+#
+
+# vim: set expandtab:

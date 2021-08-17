@@ -7,7 +7,9 @@
 #define BITCOIN_UTILTIME_H
 
 #include <stdint.h>
+#include <chrono>
 #include <string>
+#include <thread>
 
 /**
  * GetTimeMicros() and GetTimeMillis() both return the system time, but in
@@ -28,5 +30,10 @@ int64_t GetMockTime();
 void MilliSleep(int64_t n);
 
 std::string DateTimeStrFormat(const char* pszFormat, int64_t nTime);
+
+std::string FormatISO8601DateTime(int64_t nTime);
+std::string FormatISO8601Date(int64_t nTime);
+
+void UninterruptibleSleep(const std::chrono::microseconds& n);
 
 #endif // BITCOIN_UTILTIME_H

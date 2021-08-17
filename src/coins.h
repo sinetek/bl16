@@ -79,6 +79,8 @@ public:
     size_t DynamicMemoryUsage() const {
         return memusage::DynamicUsage(out.scriptPubKey);
     }
+
+    uint32_t GetHeight() const { return nHeight >> 1; }
 };
 
 class SaltedOutpointHasher

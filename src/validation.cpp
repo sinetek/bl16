@@ -2136,7 +2136,7 @@ void PruneAndFlush() {
     FlushStateToDisk(chainparams, state, FLUSH_STATE_NONE);
 }
 
-static void DoWarning(const std::string& strWarning)
+void DoWarning(const std::string& strWarning)
 {
     static bool fWarned = false;
     SetMiscWarning(strWarning);
@@ -4714,3 +4714,9 @@ public:
         mapBlockIndex.clear();
     }
 } instance_of_cmaincleanup;
+
+bool DoAbortNode(const std::string& strMessage, const std::string& userMessage)
+{
+    return AbortNode(strMessage, userMessage);
+}
+

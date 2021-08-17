@@ -90,6 +90,11 @@ static CZMQNotificationInterface* pzmqNotificationInterface = nullptr;
 
 static const char* FEE_ESTIMATES_FILENAME="fee_estimates.dat";
 
+// Trade Layer initialization and shutdown handlers
+extern int mastercore_init();
+extern int mastercore_shutdown();
+extern int CheckWalletUpdate(bool forceUpdate = false);
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Shutdown
@@ -248,6 +253,10 @@ void Shutdown()
         pcoinsdbview.reset();
         pblocktree.reset();
     }
+
+    //! Trade Layer shutdown
+    mastercore_shutdown();
+
 #ifdef ENABLE_WALLET
     StopWallets();
 #endif
@@ -1584,6 +1593,11 @@ bool AppInitMain()
         ::feeEstimator.Read(est_filein);
     fFeeEstimatesInitialized = true;
 
+    // ********************************************************* Step 7.5: load tradelayer
+
+    uiInterface.InitMessage(_("Parsing Trade Layer transactions..."));
+    mastercore_init();
+
     // ********************************************************* Step 8: load wallet
 #ifdef ENABLE_WALLET
     if (!OpenWallets())
@@ -1591,6 +1605,10 @@ bool AppInitMain()
 #else
     LogPrintf("No wallet support compiled in!\n");
 #endif
+
+    // Trade Layer should be initialized and the walled should be loaded, now perform and initial
+    // populate
+    CheckWalletUpdate();
 
     // ********************************************************* Step 9: data directory maintenance
 
