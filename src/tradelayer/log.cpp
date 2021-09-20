@@ -1,7 +1,7 @@
 #include <tradelayer/log.h>
 
 #include <chainparamsbase.h>
-#include <util.h>
+#include <util/system.h>
 #include <utiltime.h>
 
 #include <assert.h>

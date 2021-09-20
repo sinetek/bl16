@@ -52,8 +52,8 @@
 #include <tinyformat.h>
 #include <ui_interface.h>
 #include <uint256.h>
-#include <util.h>
-#include <utilstrencodings.h>
+#include <util/system.h>
+#include <util/strencodings.h>
 #include <utiltime.h>
 #include <validation.h>
 #include <wallet/coincontrol.h>
