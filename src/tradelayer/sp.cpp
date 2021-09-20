@@ -230,7 +230,7 @@ uint32_t CMPSPInfo::putSP(const Entry& info)
 
     // DB value for property entry
     CDataStream ssSpValue(SER_DISK, CLIENT_VERSION);
-    ssSpValue.reserve(GetSerializeSize(info, ssSpValue.GetType(), ssSpValue.GetVersion()));
+    ssSpValue.reserve(GetSerializeSize(info, ssSpValue.GetVersion()));
     ssSpValue << info;
     leveldb::Slice slSpValue(&ssSpValue[0], ssSpValue.size());
 
@@ -241,7 +241,7 @@ uint32_t CMPSPInfo::putSP(const Entry& info)
 
     // DB value for identifier
     CDataStream ssTxValue(SER_DISK, CLIENT_VERSION);
-    ssTxValue.reserve(GetSerializeSize(propertyId, ssSpValue.GetType(), ssSpValue.GetVersion()));
+    ssTxValue.reserve(GetSerializeSize(propertyId, ssSpValue.GetVersion()));
     ssTxValue << propertyId;
     leveldb::Slice slTxValue(&ssTxValue[0], ssTxValue.size());
 
@@ -442,7 +442,7 @@ void CMPSPInfo::setWatermark(const uint256& watermark)
     leveldb::Slice slKey(&ssKey[0], ssKey.size());
 
     CDataStream ssValue(SER_DISK, CLIENT_VERSION);
-    ssValue.reserve(GetSerializeSize(watermark, ssValue.GetType(), ssValue.GetVersion()));
+    ssValue.reserve(GetSerializeSize(watermark, ssValue.GetVersion()));
     ssValue << watermark;
     leveldb::Slice slValue(&ssValue[0], ssValue.size());
 
