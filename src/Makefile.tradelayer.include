@@ -1,0 +1,88 @@
+TRADELAYER_H = \
+        tradelayer/activation.h \
+        tradelayer/ce.h \
+        tradelayer/consensushash.h \
+        tradelayer/convert.h \
+        tradelayer/createpayload.h \
+        tradelayer/createtx.h \
+        tradelayer/dex.h \
+        tradelayer/encoding.h \
+        tradelayer/errors.h \
+        tradelayer/externfns.h \
+        tradelayer/fetchwallettx.h \
+        tradelayer/log.h \
+        tradelayer/mdex.h \
+        tradelayer/notifications.h \
+        tradelayer/operators_algo_clearing.h \
+        tradelayer/parse_string.h \
+        tradelayer/pending.h \
+        tradelayer/persistence.h \
+        tradelayer/register.h \
+        tradelayer/rpc.h \
+        tradelayer/rpcpayload.h \
+        tradelayer/rpcrawtx.h \
+        tradelayer/rpcrequirements.h \
+        tradelayer/rpctx.h \
+        tradelayer/rpctxobject.h \
+        tradelayer/rpcvalues.h \
+        tradelayer/rules.h \
+        tradelayer/script.h \
+        tradelayer/sp.h \
+        tradelayer/tally.h \
+        tradelayer/tradelayer.h \
+        tradelayer/tradelayer_matrices.h \
+        tradelayer/tx.h \
+        tradelayer/uint256_extensions.h \
+        tradelayer/utilsbitcoin.h \
+        tradelayer/varint.h \
+        tradelayer/version.h \
+        tradelayer/walletcache.h \
+        tradelayer/wallettxs.h
+
+TRADELAYER_CPP = \
+        tradelayer/activation.cpp \
+        tradelayer/ce.cpp \
+        tradelayer/consensushash.cpp \
+        tradelayer/convert.cpp \
+        tradelayer/createpayload.cpp \
+        tradelayer/createtx.cpp \
+        tradelayer/dex.cpp \
+        tradelayer/encoding.cpp \
+        tradelayer/externfns.cpp \
+        tradelayer/fetchwallettx.cpp \
+        tradelayer/log.cpp \
+        tradelayer/mdex.cpp \
+        tradelayer/notifications.cpp \
+        tradelayer/operators_algo_clearing.cpp \
+        tradelayer/parse_string.cpp \
+        tradelayer/pending.cpp \
+        tradelayer/persistence.cpp \
+        tradelayer/register.cpp \
+        tradelayer/rpc.cpp \
+        tradelayer/rpcpayload.cpp \
+        tradelayer/rpcrawtx.cpp \
+        tradelayer/rpcrequirements.cpp \
+        tradelayer/rpctx.cpp \
+        tradelayer/rpctxobject.cpp \
+        tradelayer/rpcvalues.cpp \
+        tradelayer/rules.cpp \
+        tradelayer/script.cpp \
+        tradelayer/sp.cpp \
+        tradelayer/tally.cpp \
+        tradelayer/tradelayer.cpp \
+        tradelayer/tx.cpp \
+        tradelayer/utilsbitcoin.cpp \
+        tradelayer/varint.cpp \
+        tradelayer/version.cpp \
+        tradelayer/walletcache.cpp \
+        tradelayer/wallettxs.cpp
+
+libbitcoin_server_a_SOURCES += \
+  ${TRADELAYER_CPP} \
+  ${TRADELAYER_H}
+
+if ENABLE_TESTS
+#include Makefile.tradelayertest.include
+endif
+
+# vim: set expandtab:
