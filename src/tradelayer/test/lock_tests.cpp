@@ -13,7 +13,7 @@ namespace number
 
 namespace locker
 {
-    CCriticalSection cs_number;
+    RecursiveMutex cs_number;
 }
 
 static void plusOneThread(int nIterations)

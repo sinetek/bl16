@@ -103,7 +103,7 @@ using std::vector;
 using namespace mastercore;
 typedef boost::multiprecision::cpp_dec_float_100 dec_float;
 
-CCriticalSection cs_tally;
+RecursiveMutex cs_tally;
 typedef boost::multiprecision::uint128_t ui128;
 
 static int nWaterlineBlock = 0;
@@ -703,7 +703,7 @@ CCoinsView mastercore::viewDummy;
 CCoinsViewCache mastercore::view(&viewDummy);
 
 //! Guards coins view cache
-CCriticalSection mastercore::cs_tx_cache;
+RecursiveMutex mastercore::cs_tx_cache;
 
 static unsigned int nCacheHits = 0;
 static unsigned int nCacheMiss = 0;

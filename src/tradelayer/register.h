@@ -11,7 +11,7 @@
 #include <univalue.h>
 
 //! Global lock for state objects
-extern CCriticalSection cs_register;
+extern RecursiveMutex cs_register;
 
 //! User records for contracts
 enum RecordType {

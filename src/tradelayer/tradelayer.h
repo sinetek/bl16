@@ -334,7 +334,7 @@ const std::vector<unsigned char> GetTLMarker();
 extern bool autoCommit;
 
 //! Global lock for state objects
-extern CCriticalSection cs_tally;
+extern RecursiveMutex cs_tally;
 
 class Channel
 {
@@ -634,7 +634,7 @@ namespace mastercore
   extern CCoinsViewCache view;
 
   //! Guards coins view cache
-  extern CCriticalSection cs_tx_cache;
+  extern RecursiveMutex cs_tx_cache;
 
   std::string strMPProperty(uint32_t propertyId);
 

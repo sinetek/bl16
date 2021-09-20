@@ -22,7 +22,7 @@
 #include <string>
 
 
-extern CCriticalSection cs_main;
+extern RecursiveMutex cs_main;
 
 using mastercore::cs_tx_cache;
 using mastercore::view;
