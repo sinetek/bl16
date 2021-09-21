@@ -5105,6 +5105,11 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex *pin
     return std::min<double>(pindex->nChainTx / fTxTotal, 1.0);
 }
 
+bool DoAbortNode(const std::string& strMessage, const std::string& userMessage)
+{
+    return AbortNode(strMessage, userMessage);
+}
+
 class CMainCleanup
 {
 public:
