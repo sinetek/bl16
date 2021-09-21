@@ -11,6 +11,7 @@
 #include <primitives/transaction.h>
 #include <pubkey.h>
 #include <rpc/server.h>
+#include <rpc/util.h>
 #include <sync.h>
 #include <uint256.h>
 #include <util/strencodings.h>

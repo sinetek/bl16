@@ -13,6 +13,8 @@
 #include <amount.h>
 #include <arith_uint256.h>
 #include <rpc/protocol.h>
+#include <rpc/server.h>
+#include <rpc/util.h>
 #include <sync.h>
 #include <tinyformat.h>
 #include <validation.h>

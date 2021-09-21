@@ -19,6 +19,7 @@
 
 #include <init.h>
 #include <rpc/server.h>
+#include <rpc/util.h>
 #include <sync.h>
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
