@@ -2,7 +2,7 @@
 
 #include <chainparamsbase.h>
 #include <util/system.h>
-#include <utiltime.h>
+#include <util/time.h>
 
 #include <assert.h>
 #include <atomic>
@@ -202,7 +202,7 @@ static void DebugLogInit()
  */
 int LogFilePrint(const std::string& str)
 {
-	// XXX
+#warning xxx
 	return ConsolePrint(str);
 }
 
@@ -221,6 +221,7 @@ int ConsolePrint(const std::string& str)
 {
     int ret = 0; // Number of characters written
     static bool fStartedNewLine = true;
+    static bool fLogTimestamps = LogInstance().m_log_timestamps;
 
     if (fLogTimestamps && fStartedNewLine) {
         ret = fprintf(stdout, "%s %s", GetTimestamp().c_str(), str.c_str());
