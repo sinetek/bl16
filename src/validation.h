@@ -816,5 +816,7 @@ inline bool IsBlockPruned(const CBlockIndex* pblockindex)
 
 /** Abort with a message */
 bool DoAbortNode(const std::string& strMessage, const std::string& userMessage="");
+/** Sends out an alert */
+void DoWarning(const std::string& strWarning);
 
 #endif // BITCOIN_VALIDATION_H
