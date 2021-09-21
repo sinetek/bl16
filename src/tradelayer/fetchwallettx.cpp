@@ -36,11 +36,13 @@ namespace mastercore
  */
 unsigned int GetTransactionByteOffset(const uint256& txid)
 {
+    int position;
+
     LOCK(cs_main);
 
-    CDiskTxPos position;
-    if (pblocktree->ReadTxIndex(txid, position)) {
-        return position.nTxOffset;
+    // Read from the TXINDEX DB.
+    if (pblocktree->Read(std::make_pair('t', txid), position)) {
+        return position;
     }
 
     return 0;
