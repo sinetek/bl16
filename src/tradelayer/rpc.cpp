@@ -349,7 +349,7 @@ UniValue tl_getpayload(const JSONRPCRequest& request)
 
     CTransactionRef tx;
     uint256 blockHash;
-    if (!GetTransaction(txid, tx, Params().GetConsensus(), blockHash, true)) {
+    if (!GetTransaction(txid, tx, Params().GetConsensus(), blockHash)) {
         PopulateFailure(MP_TX_NOT_FOUND);
     }
 
