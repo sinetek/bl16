@@ -39,8 +39,9 @@
 #include <init.h>
 #include <primitives/block.h>
 #include <primitives/transaction.h>
-#include <rpc/safemode.h>
+#include <rpc/protocol.h>
 #include <rpc/server.h>
+#include <rpc/util.h>
 #include <tinyformat.h>
 #include <txmempool.h>
 #include <uint256.h>
@@ -1362,7 +1363,7 @@ UniValue tl_listblocktransactions(const JSONRPCRequest& request)
     CBlock block;
     {
         LOCK(cs_main);
-        CBlockIndex* pBlockIndex = chainActive[blockHeight];
+        CBlockIndex* pBlockIndex = ChainActive()[blockHeight];
 
         if (!ReadBlockFromDisk(block, pBlockIndex, Params().GetConsensus())) {
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Failed to read block from disk");
@@ -1743,7 +1744,7 @@ UniValue tl_getcurrentconsensushash(const JSONRPCRequest& request)
 
         int block = GetHeight();
 
-        CBlockIndex* pblockindex = chainActive[block];
+        CBlockIndex* pblockindex = ChainActive()[block];
         uint256 blockHash = pblockindex->GetBlockHash();
 
         uint256 consensusHash = GetConsensusHash();
@@ -2777,7 +2778,7 @@ UniValue tl_getalltxonblock(const JSONRPCRequest& request)
     CBlock block;
     {
         LOCK(cs_main);
-        CBlockIndex* pBlockIndex = chainActive[blockHeight];
+        CBlockIndex* pBlockIndex = ChainActive()[blockHeight];
 
         if (!ReadBlockFromDisk(block, pBlockIndex, Params().GetConsensus()))
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Failed to read block from disk");
