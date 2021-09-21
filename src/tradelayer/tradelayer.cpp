@@ -57,6 +57,7 @@
 #include <util/time.h>
 #include <validation.h>
 #include <wallet/coincontrol.h>
+#include <shutdown.h>
 
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
@@ -745,7 +746,7 @@ static bool FillTxInputCache(const CTransaction& tx, const std::shared_ptr<std::
         {
             newcoin = removedCoins->find(txIn.prevout)->second;
             if(msc_debug_fill_tx_input_cache) PrintToLog("%s(): newcoin = removedCoins->find(txIn.prevout)->second \n",__func__);
-        } else if (GetTransaction(txIn.prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true)) {
+        } else if (GetTransaction(txIn.prevout.hash, txPrev, Params().GetConsensus(), hashBlock)) {
 
             newcoin.out.scriptPubKey = txPrev->vout[nOut].scriptPubKey;
             newcoin.out.nValue = txPrev->vout[nOut].nValue;
@@ -3697,7 +3698,7 @@ void CMPTxList::LoadActivations(int blockHeight)
          CTransactionRef wtx;
          CMPTransaction mp_obj;
 
-         if (!GetTransaction(hash, wtx, Params().GetConsensus(), blockHash, true)) {
+         if (!GetTransaction(hash, wtx, Params().GetConsensus(), blockHash)) {
               PrintToLog("ERROR: While loading activation transaction %s: tx in levelDB but does not exist.\n", hash.GetHex());
               continue;
          }
@@ -3766,7 +3767,7 @@ void CMPTxList::LoadAlerts(int blockHeight)
          uint256 blockHash;
          CTransactionRef wtx;
          CMPTransaction mp_obj;
-         if (!GetTransaction(txid, wtx, Params().GetConsensus(), blockHash, true)) {
+         if (!GetTransaction(txid, wtx, Params().GetConsensus(), blockHash)) {
               PrintToLog("ERROR: While loading alert %s: tx in levelDB but does not exist.\n", txid.GetHex());
               continue;
          }
