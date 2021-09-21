@@ -49,6 +49,7 @@
 #include <validation.h>
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
+#include <wallet/rpcwallet.h>
 #endif
 
 #include <iomanip>
