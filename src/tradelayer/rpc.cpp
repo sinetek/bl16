@@ -511,9 +511,7 @@ UniValue mscrpc(const JSONRPCRequest& request)
         {
             PrintToLog("Locking pwalletMain->cs_wallet for %d milliseconds..\n", extra2);
             CWalletRef pwalletMain = nullptr;
-            if (vpwallets.size() > 0){
-                pwalletMain = vpwallets[0];
-            }
+	    pwalletMain = GetWallets()[0].get();
             LOCK(pwalletMain->cs_wallet);
             UninterruptibleSleep(std::chrono::milliseconds{extra2});
             PrintToLog("Unlocking pwalletMain->cs_wallet now\n");

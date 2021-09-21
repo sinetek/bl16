@@ -55,11 +55,10 @@ void WalletTXIDCacheAdd(const uint256& hash)
 void WalletTXIDCacheInit()
 {
     if (msc_debug_walletcache) PrintToLog("WALLETTXIDCACHE: WalletTXIDCacheInit requested\n");
+
 #ifdef ENABLE_WALLET
     CWalletRef pwalletMain = nullptr;
-    if (vpwallets.size() > 0){
-        pwalletMain = vpwallets[0];
-    }
+    pwalletMain = GetWallets()[0].get();
 
     LOCK2(cs_tally, pwalletMain->cs_wallet);
 

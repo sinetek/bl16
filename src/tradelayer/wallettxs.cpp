@@ -39,9 +39,7 @@ bool AddressToPubKey(const std::string& key, CPubKey& pubKey)
     // Case 1: Bitcoin address and the key is in the wallet
     CTxDestination dest = DecodeDestination(key);
     CWalletRef pwalletMain = nullptr;
-    if (vpwallets.size() > 0){
-        pwalletMain = vpwallets[0];
-    }
+    pwalletMain = GetWallets()[0].get();
 
     if (pwalletMain && IsValidDestination(dest)) {
         CKey keyOut;
@@ -117,9 +115,7 @@ static int64_t GetEstimatedFeePerKb()
 
 #ifdef ENABLE_WALLET
     CWalletRef pwalletMain = nullptr;
-    if (vpwallets.size() > 0){
-        pwalletMain = vpwallets[0];
-    }
+    pwalletMain = GetWallets()[0].get();
 
     if (pwalletMain) {
        CCoinControl coin_control;
@@ -170,21 +166,17 @@ bool CheckInput(const CTxOut& txOut, int nHeight, CTxDestination& dest)
  */
 int IsMyAddress(const std::string& address)
 {
+
 #ifdef ENABLE_WALLET
     CWalletRef pwalletMain = nullptr;
-    if (vpwallets.size() > 0){
-        pwalletMain = vpwallets[0];
-    }
+    pwalletMain = GetWallets()[0].get();
 
     if (pwalletMain) {
-        // TODO: resolve deadlock caused cs_tally, cs_wallet
-        // LOCK(pwalletMain->cs_wallet);
-        // CBitcoinAddress parsedAddress(address);
-        isminetype isMine = IsMine(*pwalletMain, DecodeDestination(address));
-
-        return static_cast<int>(isMine);
+	    auto isMine = pwalletMain->IsMine(DecodeDestination(address));
+	    return static_cast<int>(isMine);
     }
 #endif
+
     return 0;
 }
 
@@ -198,9 +190,7 @@ int64_t SelectCoins(const std::string& fromAddress, CCoinControl& coinControl, i
 
 #ifdef ENABLE_WALLET
     CWalletRef pwalletMain = nullptr;
-    if (vpwallets.size() > 0){
-        pwalletMain = vpwallets[0];
-    }
+    pwalletMain = GetWallets()[0].get();
 
     if (nullptr == pwalletMain) {
         return 0;

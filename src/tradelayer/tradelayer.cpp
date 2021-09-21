@@ -3524,12 +3524,10 @@ int mastercore::WalletTxBuilder(const std::string& senderAddress, const std::str
 				const std::vector<unsigned char>& data, uint256& txid, std::string& rawHex, bool commit,
 				unsigned int minInputs)
 {
-#ifdef ENABLE_WALLET
 
+#ifdef ENABLE_WALLET
   CWalletRef pwalletMain = nullptr;
-  if (vpwallets.size() > 0){
-    pwalletMain = vpwallets[0];
-  }
+  pwalletMain = GetWallets()[0].get();
 
   if (pwalletMain == nullptr) return MP_ERR_WALLET_ACCESS;
 
