@@ -1288,7 +1288,7 @@ static int msc_initial_scan(int nFirstBlock)
     }
 
     // used to print the progress to the console and notifies the UI
-    ProgressReporter progressReporter(chainActive[nFirstBlock], chainActive[nLastBlock]);
+    ProgressReporter progressReporter(ChainActive()[nFirstBlock], ChainActive()[nLastBlock]);
 
     for (nBlock = nFirstBlock; nBlock <= nLastBlock; ++nBlock)
     {
@@ -1297,7 +1297,7 @@ static int msc_initial_scan(int nFirstBlock)
             break;
         }
 
-        CBlockIndex* pblockindex = chainActive[nBlock];
+        CBlockIndex* pblockindex = ChainActive()[nBlock];
         if (nullptr == pblockindex) break;
 
         std::string strBlockHash = pblockindex->GetBlockHash().GetHex();
@@ -2070,7 +2070,7 @@ static int load_most_relevant_state()
   {
       LOCK2(cs_main, cs_tally);
 
-      while (nullptr != spBlockIndex && !chainActive.Contains(spBlockIndex))
+      while (nullptr != spBlockIndex && !ChainActive().Contains(spBlockIndex))
       {
           int remainingSPs = _my_sps->popBlock(spBlockIndex->GetBlockHash());
           if (remainingSPs < 0) {
@@ -2105,7 +2105,7 @@ static int load_most_relevant_state()
               uint256 blockHash;
               blockHash.SetHex(vstr[1]);
               CBlockIndex *pBlockIndex = GetBlockIndex(blockHash);
-              if (pBlockIndex == nullptr || !chainActive.Contains(pBlockIndex)) {
+              if (pBlockIndex == nullptr || !ChainActive().Contains(pBlockIndex)) {
                   continue;
               }
 
@@ -3799,7 +3799,7 @@ void CMPTxList::LoadAlerts(int blockHeight)
      int64_t blockTime = 0;
      {
          LOCK(cs_main);
-         CBlockIndex* pBlockIndex = chainActive[blockHeight-1];
+         CBlockIndex* pBlockIndex = ChainActive()[blockHeight-1];
          if (pBlockIndex != nullptr) {
              blockTime = pBlockIndex->GetBlockTime();
          }

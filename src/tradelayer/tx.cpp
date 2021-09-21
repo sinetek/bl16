@@ -2543,7 +2543,7 @@ int CMPTransaction::logicMath_CreatePropertyFixed()
     {
       LOCK(cs_main);
 
-      CBlockIndex* pindex = chainActive[block];
+      CBlockIndex* pindex = ChainActive()[block];
       if (pindex == nullptr) {
 	        PrintToLog("%s(): ERROR: block %d not in the active chain\n", __func__, block);
 	        return (PKT_ERROR_SP -20);
@@ -2612,7 +2612,7 @@ int CMPTransaction::logicMath_CreatePropertyManaged()
     {
         LOCK(cs_main);
 
-        CBlockIndex* pindex = chainActive[block];
+        CBlockIndex* pindex = ChainActive()[block];
         if (pindex == nullptr) {
             PrintToLog("%s(): ERROR: block %d not in the active chain\n", __func__, block);
             return (PKT_ERROR_SP -20);
@@ -2674,7 +2674,7 @@ int CMPTransaction::logicMath_GrantTokens()
   {
     LOCK(cs_main);
 
-    CBlockIndex* pindex = chainActive[block];
+    CBlockIndex* pindex = ChainActive()[block];
     if (pindex == nullptr) {
       PrintToLog("%s(): ERROR: block %d not in the active chain\n", __func__, block);
       return (PKT_ERROR_SP -20);
@@ -2791,7 +2791,7 @@ int CMPTransaction::logicMath_RevokeTokens()
     {
         LOCK(cs_main);
 
-        CBlockIndex* pindex = chainActive[block];
+        CBlockIndex* pindex = ChainActive()[block];
         if (pindex == nullptr) {
             PrintToLog("%s(): ERROR: block %d not in the active chain\n", __func__, block);
             return (PKT_ERROR_TOKENS -20);
@@ -2871,7 +2871,7 @@ int CMPTransaction::logicMath_ChangeIssuer()
     {
         LOCK(cs_main);
 
-        CBlockIndex* pindex = chainActive[block];
+        CBlockIndex* pindex = ChainActive()[block];
         if (pindex == nullptr) {
             PrintToLog("%s(): ERROR: block %d not in the active chain\n", __func__, block);
             return (PKT_ERROR_TOKENS -20);
@@ -3128,7 +3128,7 @@ int CMPTransaction::logicMath_CreateContractDex()
   uint256 blockHash;
   {
       LOCK(cs_main);
-      CBlockIndex* pindex = chainActive[block];
+      CBlockIndex* pindex = ChainActive()[block];
 
       if (pindex == nullptr)
       {
@@ -3434,7 +3434,7 @@ int CMPTransaction::logicMath_CreatePeggedCurrency()
     {
         LOCK(cs_main);
 
-        CBlockIndex* pindex = chainActive[block];
+        CBlockIndex* pindex = ChainActive()[block];
         if (pindex == nullptr) {
             PrintToLog("%s(): ERROR: block %d not in the active chain\n", __func__, block);
             return (PKT_ERROR_SP -20);
@@ -3918,7 +3918,7 @@ int CMPTransaction::logicMath_CreateOracleContract()
     uint256 blockHash;
     {
         LOCK(cs_main);
-        CBlockIndex* pindex = chainActive[block];
+        CBlockIndex* pindex = ChainActive()[block];
 
         if (pindex == nullptr)
         {
@@ -3990,7 +3990,7 @@ int CMPTransaction::logicMath_Change_OracleAdm()
     uint256 blockHash;
     {
         LOCK(cs_main);
-        CBlockIndex* pindex = chainActive[block];
+        CBlockIndex* pindex = ChainActive()[block];
 
         if (pindex == nullptr)
         {
@@ -4100,7 +4100,7 @@ int CMPTransaction::logicMath_OracleBackup()
     uint256 blockHash;
     {
         LOCK(cs_main);
-        CBlockIndex* pindex = chainActive[block];
+        CBlockIndex* pindex = ChainActive()[block];
 
         if (pindex == nullptr)
         {

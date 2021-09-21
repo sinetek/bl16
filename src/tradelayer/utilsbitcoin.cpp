@@ -22,7 +22,7 @@ namespace mastercore
 int GetHeight()
 {
     LOCK(cs_main);
-    return chainActive.Height();
+    return ChainActive().Height();
 }
 
 /**
@@ -31,8 +31,8 @@ int GetHeight()
 uint32_t GetLatestBlockTime()
 {
     LOCK(cs_main);
-    if (chainActive.Tip())
-        return chainActive.Tip()->GetBlockTime();
+    if (ChainActive().Tip())
+        return ChainActive().Tip()->GetBlockTime();
     else
         return Params().GenesisBlock().nTime;
 }
