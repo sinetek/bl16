@@ -66,7 +66,7 @@ void WalletTXIDCacheInit()
 
     // Iterate through the wallet, checking if each transaction is Trade Layer (via levelDB)
     for (CWallet::TxItems::reverse_iterator it = txOrdered.rbegin(); it != txOrdered.rend(); ++it) {
-        const CWalletTx* pwtx = it->second.first;
+        const CWalletTx* pwtx = it->second;
         if (pwtx != nullptr) {
             // get the hash of the transaction and check leveldb to see if this is an Trade Layer tx, if so add to cache
             const uint256& hash = pwtx->GetHash();
