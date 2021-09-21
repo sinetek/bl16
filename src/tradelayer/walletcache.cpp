@@ -63,7 +63,6 @@ void WalletTXIDCacheInit()
 
     LOCK2(cs_tally, pwalletMain->cs_wallet);
 
-    std::list<CAccountingEntry> acentries;
     CWallet::TxItems txOrdered = pwalletMain->wtxOrdered;
 
     // Iterate through the wallet, checking if each transaction is Trade Layer (via levelDB)

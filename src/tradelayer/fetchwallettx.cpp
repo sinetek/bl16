@@ -65,7 +65,6 @@ std::map<std::string, uint256> FetchWalletTLTransactions(unsigned int count, int
     }
 
     std::set<uint256> seenHashes;
-    std::list<CAccountingEntry> acentries;
     CWallet::TxItems txOrdered;
     {
         LOCK(pwalletMain->cs_wallet);
