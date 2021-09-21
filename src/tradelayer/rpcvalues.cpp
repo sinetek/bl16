@@ -17,6 +17,7 @@
 #include <rpc/util.h>
 #include <script/script.h>
 #include <uint256.h>
+#include <key_io.h>
 
 #include <string>
 #include <univalue.h>
