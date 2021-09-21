@@ -54,7 +54,7 @@
 #include <uint256.h>
 #include <util/system.h>
 #include <util/strencodings.h>
-#include <utiltime.h>
+#include <util/time.h>
 #include <validation.h>
 #include <wallet/coincontrol.h>
 
