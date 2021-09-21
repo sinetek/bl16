@@ -42,7 +42,8 @@ bool AddressToPubKey(const std::string& key, CPubKey& pubKey)
 
     if (pwalletMain && IsValidDestination(dest)) {
         CKey keyOut;
-        auto keyID = GetKeyForDestination(*pwalletMain, dest);
+	LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwalletMain);
+        auto keyID = GetKeyForDestination(spk_man, dest);
         if (keyID.IsNull()) {
             PrintToLog("%s: ERROR: redemption address %s does not refer to a public key\n", __func__, key);
             return false;
@@ -118,7 +119,7 @@ static int64_t GetEstimatedFeePerKb()
 
     if (pwalletMain) {
        CCoinControl coin_control;
-       nFee = GetMinimumFee(1000, coin_control, mempool, ::feeEstimator, nullptr);
+       nFee = GetMinimumFee(*pwalletMain, 1000, coin_control, nullptr);
     }
 #endif
     return nFee;
