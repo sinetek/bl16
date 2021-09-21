@@ -14,6 +14,7 @@
 #include <sync.h>
 #include <uint256.h>
 #include <util/system.h>
+#include <key_io.h>
 
 #include <leveldb/status.h>
 #include <openssl/sha.h>
