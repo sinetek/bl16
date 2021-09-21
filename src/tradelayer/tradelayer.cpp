@@ -59,7 +59,6 @@
 #include <wallet/coincontrol.h>
 
 #ifdef ENABLE_WALLET
-#include <script/ismine.h>
 #include <wallet/wallet.h>
 #endif
 
