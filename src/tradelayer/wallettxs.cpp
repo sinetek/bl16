@@ -21,6 +21,7 @@
 #ifdef ENABLE_WALLET
 #include <wallet/fees.h>
 #include <wallet/wallet.h>
+#include <wallet/rpcwallet.h>
 #endif
 
 #include <map>
@@ -48,7 +49,7 @@ bool AddressToPubKey(const std::string& key, CPubKey& pubKey)
             PrintToLog("%s: ERROR: redemption address %s does not refer to a public key\n", __func__, key);
             return false;
         }
-        if (!pwalletMain->GetPubKey(keyID, pubKey)) {
+        if (!spk_man.GetPubKey(keyID, pubKey)) {
             PrintToLog("%s() ERROR: no public key in wallet for redemption address %s\n", __func__, key);
             return false;
         }
