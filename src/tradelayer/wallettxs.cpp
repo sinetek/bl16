@@ -184,78 +184,7 @@ int IsMyAddress(const std::string& address)
  */
 int64_t SelectCoins(const std::string& fromAddress, CCoinControl& coinControl, int64_t additional, unsigned int minOutputs)
 {
-    // total output funds collected
-    int64_t nTotal = 0;
-
-#ifdef ENABLE_WALLET
-    CWalletRef pwalletMain = nullptr;
-    pwalletMain = GetWallets()[0].get();
-
-    if (nullptr == pwalletMain) {
-        return 0;
-    }
-
-    // assume 20 KB max. transaction size at 0.0001 per kilobyte
-    int64_t nMax = (COIN * (20 * (0.0001)));
-
-    // if referenceamount is set it is needed to be accounted for here too
-    if (0 < additional) nMax += additional;
-
-    int nHeight = GetHeight();
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
-    // iterate over the wallet
-    for (std::map<uint256, CWalletTx>::const_iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it) {
-        const uint256& txid = it->first;
-        const CWalletTx& wtx = it->second;
-
-        if (!wtx.IsTrusted()) {
-            continue;
-        }
-        if (!wtx.GetAvailableCredit()) {
-            continue;
-        }
-
-        for (unsigned int n = 0; n < wtx.tx->vout.size(); n++) {
-            const CTxOut& txOut = wtx.tx->vout[n];
-
-            CTxDestination dest;
-            if (!CheckInput(txOut, nHeight, dest)) {
-                continue;
-            }
-
-            if (!IsMine(*pwalletMain, dest)) {
-                continue;
-            }
-
-            if (pwalletMain->IsSpent(txid, n)) {
-               continue;
-            }
-
-            if (txOut.nValue < GetEconomicThreshold(txOut)) {
-                if (msc_debug_wallettxs) PrintToLog("%s(): output value below economic threshold: %s:%d, value: %d\n",
-                        __func__, txid.GetHex(), n, txOut.nValue);
-                continue;
-            }
-
-            const std::string sAddress = EncodeDestination(dest);
-
-            // only use funds from the sender's address
-            if (fromAddress == sAddress)
-            {
-                COutPoint outpoint(txid, n);
-                coinControl.Select(outpoint);
-
-                nTotal += txOut.nValue;
-
-                if (nMax <= nTotal) break;
-            }
-        }
-
-        if (nMax <= nTotal) break;
-    }
-#endif
-    return nTotal;
+#warning xxx
 }
 
 
