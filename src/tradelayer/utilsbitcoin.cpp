@@ -44,8 +44,8 @@ CBlockIndex* GetBlockIndex(const uint256& hash)
 {
     CBlockIndex* pBlockIndex = nullptr;
     LOCK(cs_main);
-    BlockMap::const_iterator it = mapBlockIndex.find(hash);
-    if (it != mapBlockIndex.end()) {
+    BlockMap::const_iterator it = BlockIndex().find(hash);
+    if (it != BlockIndex().end()) {
         pBlockIndex = it->second;
     }
 

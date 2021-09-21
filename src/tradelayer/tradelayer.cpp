@@ -728,6 +728,7 @@ static bool FillTxInputCache(const CTransaction& tx, const std::shared_ptr<std::
         const CTxIn& txIn = *it;
         unsigned int nOut = txIn.prevout.n;
         const Coin& coin = view.AccessCoin(txIn.prevout);
+	auto mapBlockIndex = BlockIndex();
 
         if (!coin.IsSpent())
         {
