@@ -423,7 +423,7 @@ uint256 GetConsensusHash()
 
     // Trade Channels
     // Placeholders: "multisigaddress|multisigaddress|firstaddress|secondaddress|lastexchangeblock"
-    for(const auto cm : channels_Map)
+    for(const auto& cm : channels_Map)
     {
          const Channel& chn = cm.second;
          const std::string dataStr = GenerateConsensusString(chn);
@@ -469,7 +469,7 @@ uint256 GetConsensusHash()
     // Vesting addresses
     // Placeholders: "addresses"
     std::sort (vestingAddresses.begin(), vestingAddresses.end());
-    for (const auto v : vestingAddresses)
+    for (const auto& v : vestingAddresses)
     {
         const std::string& address = v;
         std::string dataStr = strprintf("%s", address);

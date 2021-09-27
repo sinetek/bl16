@@ -2788,7 +2788,7 @@ UniValue tl_getalltxonblock(const JSONRPCRequest& request)
 
     LOCK(cs_tally);
 
-    for(const auto tx : block.vtx)
+    for(const auto& tx : block.vtx)
     {
         if (p_txlistdb->exists(tx->GetHash()))
         {

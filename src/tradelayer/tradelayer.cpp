@@ -2266,15 +2266,15 @@ static int write_contract_globals_state(ofstream &file, CHash256& hasher)
 
 static int write_mp_contractdex(ofstream &file, CHash256& hasher)
 {
-    for (const auto con : contractdex)
+    for (const auto& con : contractdex)
     {
         const cd_PricesMap &prices = con.second;
 
-        for (const auto p : prices)
+        for (const auto& p : prices)
         {
             const cd_Set &indexes = p.second;
 
-            for (const auto in : indexes)
+            for (const auto& in : indexes)
             {
 
                 const CMPContractDex& contract = in;
@@ -2303,15 +2303,15 @@ static int write_global_vars(ofstream &file, CHash256& hasher)
 
 static int write_mp_metadex(ofstream &file, CHash256& hasher)
 {
-    for (const auto my_it : metadex)
+    for (const auto& my_it : metadex)
     {
         const md_PricesMap & prices = my_it.second;
 
-        for (const auto it : prices)
+        for (const auto& it : prices)
         {
             const md_Set & indexes = it.second;
 
-            for (const auto in : indexes)
+            for (const auto& in : indexes)
             {
                 const CMPMetaDEx& meta = in;
                 meta.saveOffer(file, hasher);
@@ -2324,7 +2324,7 @@ static int write_mp_metadex(ofstream &file, CHash256& hasher)
 
 static int write_mp_offers(ofstream &file, CHash256& hasher)
 {
-    for (const auto of : my_offers)
+    for (const auto& of : my_offers)
     {
         // decompose the key for address
         std::vector<std::string> vstr;
@@ -2338,7 +2338,7 @@ static int write_mp_offers(ofstream &file, CHash256& hasher)
 
 static int write_mp_accepts(std::ofstream& file,  CHash256& hasher)
 {
-    for (const auto acc : my_accepts)
+    for (const auto& acc : my_accepts)
     {
         // decompose the key for address
         std::vector<std::string> vstr;
@@ -2414,7 +2414,7 @@ static void savingLine(const withdrawalAccepted&  w, const std::string chnAddr, 
 /** Saving pending withdrawals **/
 static int write_mp_withdrawals(std::ofstream& file, CHash256& hasher)
 {
-    for (const auto w : withdrawal_Map)
+    for (const auto& w : withdrawal_Map)
     {
         const std::string& chnAddr = w.first;
         const vector<withdrawalAccepted>& whd = w.second;
@@ -2430,7 +2430,7 @@ static int write_mp_withdrawals(std::ofstream& file, CHash256& hasher)
 /** adding channel balances**/
 void addBalances(const std::map<std::string,map<uint32_t, int64_t>>& balances, std::string& lineOut)
 {
-    for(const auto &b : balances)
+    for(const auto& b : balances)
     {
         const std::string& address = b.first;
         const auto &pMap = b.second;
@@ -2447,7 +2447,7 @@ void addBalances(const std::map<std::string,map<uint32_t, int64_t>>& balances, s
 
 static int write_mp_tokenvwap(std::ofstream& file, CHash256& hasher)
 {
-    for (const auto &mp : tokenvwap)
+    for (const auto& mp : tokenvwap)
     {
         const uint32_t& propertyId = mp.first;
         const auto &blcmap = mp.second;
