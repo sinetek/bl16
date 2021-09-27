@@ -20,6 +20,15 @@ void RegisterMiningRPCCommands(CRPCTable &tableRPC);
 /** Register raw transaction RPC commands */
 void RegisterRawTransactionRPCCommands(CRPCTable &tableRPC);
 
+/** Register Trade Layer data retrieval RPC commands */
+void RegisterTLDataRetrievalRPCCommands(CRPCTable &tableRPC);
+/** Register Trade Layer transaction creation RPC commands */
+void RegisterTLTransactionCreationRPCCommands(CRPCTable &tableRPC);
+/** Register Trade Layer payload creation RPC commands */
+void RegisterTLPayloadCreationRPCCommands(CRPCTable &tableRPC);
+/** Register Trade Layer raw transaction RPC commands */
+void RegisterTLRawTransactionRPCCommands(CRPCTable &tableRPC);
+
 static inline void RegisterAllCoreRPCCommands(CRPCTable &t)
 {
     RegisterBlockchainRPCCommands(t);
@@ -27,6 +36,14 @@ static inline void RegisterAllCoreRPCCommands(CRPCTable &t)
     RegisterMiscRPCCommands(t);
     RegisterMiningRPCCommands(t);
     RegisterRawTransactionRPCCommands(t);
+
+    /* Trade Layer RPCs: */
+    RegisterTLDataRetrievalRPCCommands(t);
+#ifdef ENABLE_WALLET
+    RegisterTLTransactionCreationRPCCommands(t);
+#endif
+    RegisterTLPayloadCreationRPCCommands(t);
+    RegisterTLRawTransactionRPCCommands(t);
 }
 
 #endif // BITCOIN_RPC_REGISTER_H

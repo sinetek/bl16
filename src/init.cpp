@@ -126,6 +126,11 @@ NODISCARD static bool CreatePidFile()
     }
 }
 
+// Trade Layer initialization and shutdown handlers
+extern int mastercore_init();
+extern int mastercore_shutdown();
+extern int CheckWalletUpdate(bool forceUpdate = false);
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Shutdown
@@ -280,6 +285,10 @@ void Shutdown(NodeContext& node)
         }
         pblocktree.reset();
     }
+
+    //! Trade Layer shutdown
+    mastercore_shutdown();
+
     for (const auto& client : node.chain_clients) {
         client->stop();
     }
@@ -1701,6 +1710,12 @@ bool AppInitMain(NodeContext& node)
     // Allowed to fail as this file IS missing on first startup.
     if (!est_filein.IsNull())
         ::feeEstimator.Read(est_filein);
+
+    // ********************************************************* Step 7.5: load tradelayer
+
+    uiInterface.InitMessage(_("Parsing Trade Layer transactions...").translated);
+    mastercore_init();
+
     fFeeEstimatesInitialized = true;
 
     // ********************************************************* Step 8: start indexers
