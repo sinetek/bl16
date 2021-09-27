@@ -3521,11 +3521,115 @@ bool mastercore::UseEncodingClassD(size_t nDataSize)
 }
 
 // This function requests the wallet create an Trade Layer transaction using the supplied parameters and payload
-int mastercore::WalletTxBuilder(const std::string& senderAddress, const std::string& receiverAddress, int64_t referenceAmount,
-				const std::vector<unsigned char>& data, uint256& txid, std::string& rawHex, bool commit,
-				unsigned int minInputs)
+int mastercore::WalletTxBuilder(
+		const std::string& senderAddress,
+		const std::string& receiverAddress,
+		int64_t referenceAmount,
+		const std::vector<unsigned char>& data,
+		uint256& txid,
+		std::string& rawHex,
+		bool commit,
+		unsigned int minInputs)
 {
-#warning xxx
+
+#ifdef ENABLE_WALLET
+
+	CWalletRef pwalletMain = nullptr;
+	pwalletMain = GetWallets()[0].get();
+
+	if (pwalletMain == nullptr) {
+		return MP_ERR_WALLET_ACCESS;
+	}
+
+	auto locked_chain = pwalletMain->chain().lock();
+	LOCK(pwalletMain->cs_wallet);
+
+	if (nMaxDatacarrierBytes < (data.size()+GetTLMarker().size())) { //xxx
+		return MP_ERR_PAYLOAD_TOO_BIG;
+	}
+
+	// TODO verify datacarrier is enabled at startup, otherwise we won't be able
+	// to send transactions.
+	//
+	
+	// Prepare the transaction; first setup some vars
+	CCoinControl coinControl;
+	coinControl.fAllowOtherInputs = true;
+	std::vector<std::pair<CScript, int64_t> > vecSend;
+	
+	// Next, we set the change address to the sender
+	coinControl.destChange = DecodeDestination(senderAddress);
+
+	// Select the inputs
+	if (SelectCoins(senderAddress, coinControl, referenceAmount, minInputs) < 0) {
+		return MP_INPUTS_INVALID;
+	}
+	
+	// Encode the data outputs (out to vecSend);
+	if (!TradeLayer_Encode_ClassD(data, vecSend)) {
+		return MP_ENCODING_ERROR;
+	}
+
+	// Then add a p2pkh output for the recipient (if needed). Note that we do
+	// this last as we want this to be the highest vout.
+	if (!receiverAddress.empty())
+	{
+		auto amount = referenceAmount;
+		if (amount < 0) {
+			//amount = GetDustThld(scriptPubKey); //xxx naming of this function is ugly
+#warning xxx GetDustThld()
+		}
+
+		CScript scriptPubKey = GetScriptForDestination(DecodeDestination(receiverAddress));
+		vecSend.push_back(std::make_pair(scriptPubKey, amount));
+	}
+
+	// Now we have what we need to pass to the wallet to create the transaction,
+	// perform some checks first.
+	if (!coinControl.HasSelected()) {
+		return MP_ERR_INPUTSELECT_FAIL;
+	}
+
+	// Convert the vector of recipients to something that the create transaction call will understand.
+	std::vector<CRecipient> vecRecipients;
+	for (auto& item : vecSend)
+	{
+		CRecipient recipient = { item.first, CAmount(item.second), false };
+		vecRecipients.push_back(recipient);
+	}
+
+	CAmount nFeeRequired = 0;
+	int nChangePosRet = -1;
+	std::string strFailReason;
+	CTransactionRef tx;
+	bool fSign = true;
+
+	// Wallet comments
+	mapValue_t mapValue;
+
+	bool fCreated = pwalletMain->CreateTransaction(*locked_chain, vecRecipients, tx, nFeeRequired, nChangePosRet, strFailReason, coinControl, fSign);
+	if (!fCreated) {
+		return MP_ERR_CREATE_TX;
+	}
+
+	// If this request is only to create, but not to commit the transaction,
+	// then display it and return.
+	if (!commit) {
+		rawHex = EncodeHexTx(*tx);
+		return 0;
+	} else {
+		// Commit the transaction to the wallet and broadcast.
+		pwalletMain->CommitTransaction(tx, std::move(mapValue), {} /* orderForm */);
+		txid = tx->GetHash();
+		return 0;
+	}
+#endif
+
+	/**
+	 * Situation: We don't have access to the wallet.
+	 */
+
+	return MP_ERR_WALLET_ACCESS;
 }
 
 void CtlTransactionDB::RecordTransaction(const uint256& txid, uint32_t posInBlock)
