@@ -7,7 +7,7 @@
 #include <vector>
 
 /** Determines the minimum output amount to be spent by an output. */
-int64_t GetDustThld(const CScript& scriptPubKey);
+int64_t TLGetDust(const CScript& scriptPubKey);
 
 /** Identifies standard output types based on a scriptPubKey. */
 bool GetOutputType(const CScript& scriptPubKey, txnouttype& whichTypeRet);

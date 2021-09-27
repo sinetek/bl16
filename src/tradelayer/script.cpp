@@ -25,7 +25,7 @@ extern CFeeRate minRelayTxFee;
  * @param scriptPubKey[in]  The scriptPubKey
  * @return The dust threshold value
  */
-int64_t GetDustThld(const CScript& scriptPubKey)
+int64_t TLGetDust(const CScript& scriptPubKey)
 {
     const CTxOut txOut(CAmount(0), scriptPubKey);
     CAmount amount = 20 * GetDustThreshold(txOut, ::minRelayTxFee);

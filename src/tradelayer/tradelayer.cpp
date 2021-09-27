@@ -3574,13 +3574,13 @@ int mastercore::WalletTxBuilder(
 	// this last as we want this to be the highest vout.
 	if (!receiverAddress.empty())
 	{
+		CScript scriptPubKey = GetScriptForDestination(DecodeDestination(receiverAddress));
+
 		auto amount = referenceAmount;
 		if (amount < 0) {
-			//amount = GetDustThld(scriptPubKey); //xxx naming of this function is ugly
-#warning xxx GetDustThld()
+			amount = TLGetDust(scriptPubKey);
 		}
 
-		CScript scriptPubKey = GetScriptForDestination(DecodeDestination(receiverAddress));
 		vecSend.push_back(std::make_pair(scriptPubKey, amount));
 	}
 
