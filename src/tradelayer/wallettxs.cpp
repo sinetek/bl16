@@ -184,9 +184,96 @@ int IsMyAddress(const std::string& address)
 /**
  * Selects spendable outputs to create a transaction.
  */
-int64_t SelectCoins(const std::string& fromAddress, CCoinControl& coinControl, int64_t additional, unsigned int minOutputs)
+int64_t SelectCoins(
+		const std::string& fromAddress,
+		CCoinControl& coinControl,
+		int64_t additional,
+		unsigned int minOutputs)
 {
-#warning xxx
+	// total output funds collected
+	int64_t nTotal = 0;
+
+#ifdef ENABLE_WALLET
+	
+	CWallet *pwalletMain = nullptr;
+	pwalletMain = GetWallets()[0].get();
+
+	if (pwalletMain == nullptr) {
+		return nTotal;
+	}
+
+	// assume 20 KB maximum transaction size @ cost of 0.0001 per KB.
+	int64_t nMax = 20 * 0.0001 * COIN;
+
+	// if reference amount is set it needs to be accounted for.
+	if (additional > 0) {
+		nMax = nMax + additional;
+	}
+
+	int nHeight = GetHeight();
+        auto locked_chain = pwalletMain->chain().lock();
+	LOCK2(cs_main, pwalletMain->cs_wallet);
+
+	// iterate over the transactions in the wallet.
+	for (auto& map : pwalletMain->mapWallet)
+	{
+		auto& txid = map.first;
+		auto& ctx = map.second;
+
+		/**
+		 * Skip transactions that are neither trusted,
+		 * nor offer any credit.
+		 */
+
+		if (ctx.IsTrusted(*locked_chain) == false) {
+			continue;
+		}
+		if (ctx.GetAvailableCredit()) {
+			continue;
+		}
+
+		for (unsigned int n = 0; n < ctx.tx->vout.size(); n++) {
+			const CTxOut& txOut = ctx.tx->vout[n];
+
+			CTxDestination dest;
+			if (!CheckInput(txOut, nHeight, dest)) {
+				continue;
+			}
+
+			if (!pwalletMain->IsMine(dest)) {
+				continue;
+			}
+
+			if (pwalletMain->IsSpent(txid, n)) {
+				continue;
+			}
+
+			if (txOut.nValue < GetEconomicThreshold(txOut)) {
+				if (msc_debug_wallettxs) PrintToLog("%s(): output value below economic threshold: %s:%d, value: %d\n",
+						__func__, txid.GetHex(), n, txOut.nValue);
+				continue;
+			}
+
+			const std::string sAddress = EncodeDestination(dest);
+
+			// only use funds from the sender's address
+			if (fromAddress == sAddress)
+			{
+				COutPoint outpoint(txid, n);
+				coinControl.Select(outpoint);
+
+				nTotal += txOut.nValue;
+
+				if (nMax <= nTotal) break;
+			}
+		}
+
+		if (nMax <= nTotal) break;
+	}
+
+#endif
+
+	return nTotal;
 }
 
 
