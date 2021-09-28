@@ -1203,3 +1203,5 @@ std::pair<int, char**> WinCmdLineArgs::get()
 }
 #endif
 } // namespace util
+
+std::atomic<bool> fReopenTradeLayerLog(false);

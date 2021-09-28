@@ -339,6 +339,10 @@ private:
 };
 
 extern ArgsManager gArgs;
+/**
+ * Flag: indicates if the tradelayer log file should be reopened.
+ */
+extern std::atomic<bool> fReopenTradeLayerLog;
 
 /**
  * @return true if help has been requested via a command-line arg

@@ -202,8 +202,43 @@ static void DebugLogInit()
  */
 int LogFilePrint(const std::string& str)
 {
-#warning xxx
-	return ConsolePrint(str);
+    int ret = 0; // Number of characters written
+    if (LogInstance().m_print_to_console) {
+        // Print to console
+        ret = ConsolePrint(str);
+
+    } else {
+        static bool fStartedNewLine = true;
+        std::call_once(debugLogInitFlag, &DebugLogInit);
+
+        if (fileout == nullptr)
+        {
+            return ret;
+        }
+
+        std::lock_guard<std::mutex> lock(*mutexDebugLog);
+
+        // Reopen the log file, if requested
+        if (fReopenTradeLayerLog)
+        {
+            fReopenTradeLayerLog = false;
+            fs::path pathDebug = GetLogPath();
+            if (freopen(pathDebug.string().c_str(), "a", fileout) != nullptr)
+                setbuf(fileout, nullptr); // Unbuffered
+
+         }
+
+         // Printing log timestamps can be useful for profiling
+         if (LogInstance().m_log_timestamps && fStartedNewLine) {
+           ret += fprintf(fileout, "%s ", GetTimestamp().c_str());
+         }
+
+         fStartedNewLine = (!str.empty() && str[str.size()-1] == '\n') ? true : false;
+
+         ret += fwrite(str.data(), 1, str.size(), fileout);
+    }
+
+    return ret;
 }
 
 
