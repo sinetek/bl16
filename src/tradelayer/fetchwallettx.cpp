@@ -29,6 +29,8 @@
 #include <utility>
 #include <vector>
 
+#include <boost/range/adaptor/reversed.hpp>
+
 namespace mastercore
 {
 /**
@@ -55,7 +57,78 @@ unsigned int GetTransactionByteOffset(const uint256& txid)
  */
 std::map<std::string, uint256> FetchWalletTLTransactions(unsigned int count, int startBlock, int endBlock)
 {
-#warning xxx
+	std::map<std::string, uint256> mapResponse;
+
+#ifdef ENABLE_WALLET
+	CWalletRef pwalletMain = nullptr;
+	pwalletMain = GetWallets()[0].get();
+
+	if (!pwalletMain) {
+		return mapResponse;
+	}
+
+	std::set<uint256> seenHashes;
+	CWallet::TxItems txOrdered;
+	{
+		LOCK(pwalletMain->cs_wallet);
+		txOrdered = pwalletMain->wtxOrdered;
+	}
+
+       	for (const auto& txp : ( txOrdered | boost::adaptors::reversed ))
+	{
+		const auto amount = txp.first;
+		const auto& tx = txp.second;
+
+		if (tx == nullptr) continue;
+		
+		const auto& txHash = tx->GetHash();
+
+		{
+			LOCK(cs_tally);
+			if (!p_txlistdb->exists(txHash)) continue;
+		}
+		
+		const auto& blockHash = tx->m_confirm.hashBlock;
+		if (blockHash.IsNull()) continue;
+
+		const CBlockIndex *blockindex = GetBlockIndex(blockHash);
+		if (blockindex == nullptr) continue;
+
+		int blockheight = tx->m_confirm.block_height;
+
+		// Is this block in the right range?
+		if (blockheight < startBlock || blockheight > endBlock) continue;
+
+		int blockposition = GetTransactionByteOffset(txHash);
+		std::string sortKey = strprintf("%07d%010d", blockheight, blockposition);
+		mapResponse.insert(std::make_pair(sortKey, txHash));
+		seenHashes.insert(txHash);
+		if (mapResponse.size() >= count) break;
+	}
+
+	for ( auto& pend : my_pending )
+	{
+		const auto& txhash = pend.first;
+		int blockheight = 9999999;
+		if (blockheight < startBlock || blockheight > endBlock) continue;
+		int blockposition = 0;
+
+		{
+			LOCK(pwalletMain->cs_wallet);
+			auto walletIt = pwalletMain->mapWallet.find(txhash);
+			if (walletIt != pwalletMain->mapWallet.end()) {
+				auto& wtx = walletIt->second;
+				blockposition = wtx.nOrderPos;
+			}
+		}
+
+		std::string sortKey = strprintf("%07d%010d", blockheight, blockposition);
+		mapResponse.insert(std::make_pair(sortKey, txhash));
+	}
+
+#endif /* ENABLE_WALLET */
+
+	return mapResponse;
 }
 
 
