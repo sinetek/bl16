@@ -582,18 +582,18 @@ const std::string mastercore::getVestingAdmin()
 {
     if (RegTest())
     {
-        // regtest (private key: cTkpBcU7YzbJBi7U59whwahAMcYwKT78yjZ2zZCbLsCZ32Qp5Wta)
-        const std::string regAddress = "QgKxFUBgR8y4xFy3s9ybpbDvYNKr4HTKPb";
+        // regtest (private key:)
+        const std::string regAddress = "2MuSYaHzx5Ch1UpPJ2TzuwZcNs8LxewAZce";
         return regAddress;
 
     } else if (TestNet()) {
         // testnet address
-        const std::string testAddress = "QQGwLt5cFRTxMuY9ij6DzTY8H1hJwn6aV4";
+        const std::string testAddress = "";
         return testAddress;
 
     }
 
-    const std::string mainAddress = "MANxfoWpwqEbSBe5ujKnCSTkfgjAwKre49";
+    const std::string mainAddress = "";
     return mainAddress;
 
 }
@@ -3551,12 +3551,12 @@ int mastercore::WalletTxBuilder(
 	// TODO verify datacarrier is enabled at startup, otherwise we won't be able
 	// to send transactions.
 	//
-	
+
 	// Prepare the transaction; first setup some vars
 	CCoinControl coinControl;
 	coinControl.fAllowOtherInputs = true;
 	std::vector<std::pair<CScript, int64_t> > vecSend;
-	
+
 	// Next, we set the change address to the sender
 	coinControl.destChange = DecodeDestination(senderAddress);
 
@@ -3564,7 +3564,7 @@ int mastercore::WalletTxBuilder(
 	if (SelectCoins(senderAddress, coinControl, referenceAmount, minInputs) < 0) {
 		return MP_INPUTS_INVALID;
 	}
-	
+
 	// Encode the data outputs (out to vecSend);
 	if (!TradeLayer_Encode_ClassD(data, vecSend)) {
 		return MP_ENCODING_ERROR;

@@ -1606,7 +1606,7 @@ UniValue tl_getinfo(const JSONRPCRequest& request)
     // provide the mastercore and bitcoin version and if available commit id
     infoResponse.pushKV("tradelayer_version_int", TL_VERSION);
     infoResponse.pushKV("tradelayer_coreversion", TradeLayerVersion());
-    infoResponse.pushKV("litecoinversion", BitcoinCoreVersion());
+    infoResponse.pushKV("bitcoinversion", BitcoinCoreVersion());
     infoResponse.pushKV("commitinfo", BuildCommit());
 
     // provide the current block details

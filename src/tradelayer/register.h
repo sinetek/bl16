@@ -24,8 +24,6 @@ enum RecordType {
   RECORD_TYPE_COUNT
 };
 
-extern bool isOverflow(int64_t a, int64_t b);
-
 // in order to recalculate entry price (FIFO)
 typedef std::vector<std::pair<int64_t,int64_t>> Entries;
 
