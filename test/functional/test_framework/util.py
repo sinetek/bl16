@@ -615,9 +615,9 @@ def tradelayer_HTTP(conn, headers, flag, method, params=None):
         assert_equal(resp.status, 200)
     return out
 
-def tradelayer_createAddresses(accounts, conn, headers):
+def tradelayer_createAddresses(conn, headers):
     addresses = []
-    for i in accounts:
+    for i in range(0,3):
         address = str(i)
         params = str([address]).replace("'",'"')
         out = tradelayer_HTTP(conn, headers, True, "getnewaddress", params)
@@ -626,8 +626,8 @@ def tradelayer_createAddresses(accounts, conn, headers):
 
 def tradelayer_fundingAddresses(addresses, amount, conn, headers):
     for addr in addresses:
-        params1 = str([amount, addr]).replace("'",'"')
-        tradelayer_HTTP(conn, headers, True, "generatetoaddress", params1)
+        params1 = str([addr, amount]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "sendtoaddress", params1)
 
 def tradelayer_checkingBalance(accounts, amount, conn, headers):
     for ac in accounts:
@@ -639,6 +639,4 @@ def tradelayer_checkingBalance(accounts, amount, conn, headers):
 def tradelayer_selfAttestation(addresses,conn, headers):
     for addr in addresses:
         params = str([addr,addr,""]).replace("'",'"')
-        params1 = str([1, addr]).replace("'",'"')
         tradelayer_HTTP(conn, headers, False, "tl_attestation", params)
-        tradelayer_HTTP(conn, headers, True, "generatetoaddress", params1)

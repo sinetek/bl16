@@ -192,6 +192,9 @@ bool CheckDeactivationAuthorization(const std::string& sender)
     // Regtest
     // use -tlactivationallowsender for testing
 
+    //Regtest test address (issues with self.extra_args on functional tests to include it using -tlactivationallowsender):
+    whitelisted.insert("2N6Vt5sifX5QXD51uPAGMPhKaVu2DQADqHY");
+
     // Add manually whitelisted sources - custom sources affect both activation and deactivation
     if (gArgs.IsArgSet("-tlactivationallowsender") && RegTest()) {
         const std::vector<std::string>& sources = gArgs.GetArgs("-tlactivationallowsender");

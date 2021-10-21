@@ -25,21 +25,23 @@ class ActivationBasicsTest (BitcoinTestFramework):
         rpcuser = "rpcuser=rpcuser💻"
         rpcpassword = "rpcpassword=rpcpassword🔑"
         addresstype = "addresstype=legacy"
+        fallbackfee = "fallbackfee=0.0002"
+        settxfee = "settxfee=0.0001"
+        datasize = "datacarriersize=80"
+
         with open(os.path.join(self.options.tmpdir+"/node0", "bitcoin.conf"), 'a', encoding='utf8') as f:
             f.write(rpcauth+"\n")
             f.write(rpcuser+"\n")
             f.write(rpcpassword+"\n")
             f.write(addresstype+"\n")
+            f.write(fallbackfee+"\n")
+            f.write(settxfee+"\n")
+            f.write(datasize+"\n")
 
     def run_test(self):
 
         self.log.info("Preparing the workspace...")
 
-        # mining 200 blocks
-        self.nodes[0].generate(50)
-        self.nodes[0].generate(50)
-        self.nodes[0].generate(50)
-        self.nodes[0].generate(50)
 
         ################################################################################
         # Checking RPC tl_sendissuancemanaged and tl_sendgrant (in the first 200 blocks of the chain) #
@@ -53,7 +55,6 @@ class ActivationBasicsTest (BitcoinTestFramework):
         headers = {"Authorization": "Basic " + str_to_b64str(authpair)}
 
         addresses = []
-        accounts = ["john", "doe", "another"]
 
         conn = http.client.HTTPConnection(url.hostname, url.port)
         conn.connect()
@@ -66,26 +67,48 @@ class ActivationBasicsTest (BitcoinTestFramework):
         # self.log.info(out)
         assert_equal(out['error'], None)
 
+        # mining 200 blocks
+        params1 = str([200, adminAddress]).replace("'",'"')
+        out = tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
+
 
         self.log.info("Creating sender address")
-        addresses = tradelayer_createAddresses(accounts, conn, headers)
+        addresses = tradelayer_createAddresses(conn, headers)
+        self.log.info(addresses)
         addresses.append(adminAddress)
-
 
         self.log.info("Funding addresses with BTC")
         amount = 5
 
         tradelayer_fundingAddresses(addresses, amount, conn, headers)
 
-        # self.log.info("Checking the BTC balance in every account")
-        # tradelayer_checkingBalance(accounts, amount, conn, headers)
+        params1 = str([1, adminAddress]).replace("'",'"')
+        out = tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
+
+
+        out = tradelayer_HTTP(conn, headers, False, "listaddressgroupings")
+        # self.log.info(out)
 
         self.log.info("Self Attestation for addresses")
-        tradelayer_selfAttestation(addresses,conn, headers)
+        # tradelayer_selfAttestation(addresses,conn, headers)
+        for addr in addresses:
+            params = str([addr,addr,""]).replace("'",'"')
+            out = tradelayer_HTTP(conn, headers, False, "tl_attestation", params)
+            self.log.info(out)
+
+        out = tradelayer_HTTP(conn, headers, False, "tl_getinfo")
+        # self.log.info(out)
+
+        params1 = str([5, adminAddress]).replace("'",'"')
+        out = tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
+
+        out = tradelayer_HTTP(conn, headers, False, "tl_getinfo")
+        # self.log.info(out)
 
         self.log.info("Checking attestations")
+
         out = tradelayer_HTTP(conn, headers, False, "tl_list_attestation")
-        self.log.info(out)
+
 
         result = []
         registers = out['result']
@@ -97,12 +120,15 @@ class ActivationBasicsTest (BitcoinTestFramework):
 
         assert_equal(result, [True, True, True, True])
 
+
         # deactivation here to write 999999999 in the MSC_SP_BLOCK param
         params = str([adminAddress, 8]).replace("'",'"')
         out = tradelayer_HTTP(conn, headers, False, "tl_senddeactivation",params)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, adminAddress]).replace("'",'"')
+        out = tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
+
 
         self.log.info("Creating new tokens (must be rejected)")
         array = [0]
@@ -111,13 +137,14 @@ class ActivationBasicsTest (BitcoinTestFramework):
         # self.log.info(out)
         txid = out['result']
 
-        self.nodes[0].generate(1)
+        params1 = str([1, adminAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking transaction invalidation")
         params = str([txid]).replace("'",'"')
         out = tradelayer_HTTP(conn, headers, False, "tl_gettransaction", params)
-        # self.log.info(out)
+        self.log.info(out)
 
         assert_equal(out['result']['invalidation reason'], 'Transaction type or version not permitted')
 
@@ -136,7 +163,8 @@ class ActivationBasicsTest (BitcoinTestFramework):
         out = tradelayer_HTTP(conn, headers, False, "tl_sendactivation",params)
         # self.log.info(out)
 
-        self.nodes[0].generate(210)
+        params1 = str([210, adminAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Creating new tokens")
         array = [0]
@@ -144,7 +172,8 @@ class ActivationBasicsTest (BitcoinTestFramework):
         out = tradelayer_HTTP(conn, headers, True, "tl_sendissuancefixed",params)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, adminAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Checking the property")
         params = str([4])
@@ -162,10 +191,11 @@ class ActivationBasicsTest (BitcoinTestFramework):
 
         # adminAddress, deactivation number 8, in block 400, minim tl version = 1.
         params = str([adminAddress, 8]).replace("'",'"')
-        out = tradelayer_HTTP(conn, headers, False, "tl_senddeactivation",params)
+        tradelayer_HTTP(conn, headers, False, "tl_senddeactivation",params)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, adminAddress]).replace("'",'"')
+        out = tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Creating new tokens (must be rejected)")
@@ -174,8 +204,8 @@ class ActivationBasicsTest (BitcoinTestFramework):
         out = tradelayer_HTTP(conn, headers, True, "tl_sendissuancefixed",params)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
-
+        params1 = str([1, adminAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Checking the property (doesn't exist)")
         params = str([5])
