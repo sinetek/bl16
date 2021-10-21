@@ -728,7 +728,7 @@ static bool FillTxInputCache(const CTransaction& tx, const std::shared_ptr<std::
         const CTxIn& txIn = *it;
         unsigned int nOut = txIn.prevout.n;
         const Coin& coin = view.AccessCoin(txIn.prevout);
-	auto mapBlockIndex = BlockIndex();
+      	auto mapBlockIndex = BlockIndex();
 
         if (!coin.IsSpent())
         {
@@ -3575,13 +3575,8 @@ int mastercore::WalletTxBuilder(
 	if (!receiverAddress.empty())
 	{
 		CScript scriptPubKey = GetScriptForDestination(DecodeDestination(receiverAddress));
+    vecSend.push_back(std::make_pair(scriptPubKey, 0 < referenceAmount ? referenceAmount : TLGetDust(scriptPubKey)));
 
-		auto amount = referenceAmount;
-		if (amount < 0) {
-			amount = TLGetDust(scriptPubKey);
-		}
-
-		vecSend.push_back(std::make_pair(scriptPubKey, amount));
 	}
 
 	// Now we have what we need to pass to the wallet to create the transaction,
@@ -3616,13 +3611,13 @@ int mastercore::WalletTxBuilder(
 	// then display it and return.
 	if (!commit) {
 		rawHex = EncodeHexTx(*tx);
-		return 0;
 	} else {
 		// Commit the transaction to the wallet and broadcast.
 		pwalletMain->CommitTransaction(tx, std::move(mapValue), {} /* orderForm */);
 		txid = tx->GetHash();
-		return 0;
 	}
+
+  return 0;
 #endif
 
 	/**

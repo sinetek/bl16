@@ -194,7 +194,7 @@ int64_t SelectCoins(
 	int64_t nTotal = 0;
 
 #ifdef ENABLE_WALLET
-	
+
 	CWallet *pwalletMain = nullptr;
 	pwalletMain = GetWallets()[0].get();
 
@@ -228,7 +228,8 @@ int64_t SelectCoins(
 		if (ctx.IsTrusted(*locked_chain) == false) {
 			continue;
 		}
-		if (ctx.GetAvailableCredit()) {
+
+		if (!ctx.GetAvailableCredit()) {
 			continue;
 		}
 
@@ -259,6 +260,7 @@ int64_t SelectCoins(
 			// only use funds from the sender's address
 			if (fromAddress == sAddress)
 			{
+
 				COutPoint outpoint(txid, n);
 				coinControl.Select(outpoint);
 
