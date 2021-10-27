@@ -20,7 +20,7 @@ static const long LOG_SHRINKSIZE  = 50000000; // 50 MB
 
 // Debug flags
 bool msc_debug_parser_data                      = 0;
-bool msc_debug_parser_readonly                  = 0;
+bool msc_debug_parser_readonly                  = 1;
 bool msc_debug_parser                           = 0;
 bool msc_debug_verbose                          = 0;
 bool msc_debug_verbose2                         = 0;
@@ -114,7 +114,7 @@ bool msc_debug_counting_lives_longshorts        = 0;
 bool msc_debug_calculate_pnl_forghost           = 0;
 bool msc_debug_withdrawal_from_channel          = 0;
 bool msc_debug_populate_rpc_transaction_obj     = 0;
-bool msc_debug_fill_tx_input_cache              = 0;
+bool msc_debug_fill_tx_input_cache              = 1;
 bool msc_debug_try_add_second                   = 0;
 bool msc_debug_liquidation_enginee              = 1;
 

@@ -247,7 +247,7 @@ void ChannelToJSON(const std::string& address, uint32_t property, UniValue& bala
     auto it = channels_Map.find(address);
     if (it != channels_Map.end()){
         const Channel& sChn = it->second;
-        remaining = sChn.getRemaining(false, property);
+        remaining += sChn.getRemaining(false, property);
         remaining += sChn.getRemaining(true, property);
     }
 

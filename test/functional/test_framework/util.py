@@ -615,9 +615,9 @@ def tradelayer_HTTP(conn, headers, flag, method, params=None):
         assert_equal(resp.status, 200)
     return out
 
-def tradelayer_createAddresses(conn, headers):
+def tradelayer_createAddresses(amount, conn, headers):
     addresses = []
-    for i in range(0,3):
+    for i in range(0,amount):
         address = str(i)
         params = str([address]).replace("'",'"')
         out = tradelayer_HTTP(conn, headers, True, "getnewaddress", params)

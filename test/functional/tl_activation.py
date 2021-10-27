@@ -73,7 +73,8 @@ class ActivationBasicsTest (BitcoinTestFramework):
 
 
         self.log.info("Creating sender address")
-        addresses = tradelayer_createAddresses(conn, headers)
+        num = 3
+        addresses = tradelayer_createAddresses(num, conn, headers)
         self.log.info(addresses)
         addresses.append(adminAddress)
 

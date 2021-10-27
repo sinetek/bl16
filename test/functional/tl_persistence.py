@@ -18,7 +18,7 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         self.num_nodes = 1
         self.setup_clean_chain = True
         # Use self.extra_args to change command-line arguments for the nodes
-        self.extra_args = [["-txindex=1"]]  # NOTE: EXTREMELY IMPORTANT in order to use the persistence!
+        # self.extra_args = [["-txindex=1"]]  # NOTE: EXTREMELY IMPORTANT in order to use the persistence!
 
     def setup_chain(self):
         super().setup_chain()
@@ -26,15 +26,24 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         rpcauth = "rpcauth=rt:93648e835a54c573682c2eb19f882535$7681e9c5b74bdd85e78166031d2058e1069b3ed7ed967c93fc63abba06f31144"
         rpcuser = "rpcuser=rpcuser💻"
         rpcpassword = "rpcpassword=rpcpassword🔑"
+        addresstype = "addresstype=legacy"
+        fallbackfee = "fallbackfee=0.0002"
+        settxfee = "settxfee=0.0001"
+        datasize = "datacarriersize=80"
+        index = "txindex=1"
         with open(os.path.join(self.options.tmpdir+"/node0", "bitcoin.conf"), 'a', encoding='utf8') as f:
             f.write(rpcauth+"\n")
+            f.write(rpcuser+"\n")
+            f.write(rpcpassword+"\n")
+            f.write(addresstype+"\n")
+            f.write(fallbackfee+"\n")
+            f.write(settxfee+"\n")
+            f.write(datasize+"\n")
+            f.write(index+"\n")
 
     def run_test(self):
 
         self.log.info("Preparing the workspace...")
-
-        # mining 200 blocks
-        self.nodes[0].generate(200)
 
         ################################################################################
         # Checking the persistence in db (in the first 200 blocks of the chain) #
@@ -53,20 +62,33 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         conn = http.client.HTTPConnection(url.hostname, url.port)
         conn.connect()
 
-
+        amount = 3
         self.log.info("Creating addresses")
-        addresses = tradelayer_createAddresses(accounts, conn, headers)
+        addresses = tradelayer_createAddresses(amount, conn, headers)
 
 
         params = str(["bob"]).replace("'",'"')
         out = tradelayer_HTTP(conn, headers, True, "getnewaddress", params)
         notaryAddr = out['result']
         # self.log.info(notaryAddr)
+        out = tradelayer_HTTP(conn, headers, False, "getnewaddress")
+        rAddress = out['result']
+        self.log.info(rAddress)
+
+        params1 = str([50, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
+        params1 = str([50, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
+        params1 = str([50, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
+        params1 = str([50, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         params = str([notaryAddr, '0.1']).replace("'",'"')
-        tradelayer_HTTP(conn, headers, True, "sendtoaddress", params)
+        tradelayer_HTTP(conn, headers, False, "sendtoaddress", params)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Getting private keys")
         params = str([addresses[0]]).replace("'",'"')
@@ -95,16 +117,16 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         out = tradelayer_HTTP(conn, headers, True, "validateaddress",params)
         # self.log.info(out)
         scriptPubKey = out['result']['scriptPubKey']
-        assert_equal(out['result']['embedded']['script'],'multisig')
+        assert_equal(out['result']['isscript'], True)
 
 
         self.log.info("Funding addresses with BTC")
-        amount = 1.1
+        amount = 2
         tradelayer_fundingAddresses(addresses, amount, conn, headers)
 
 
-        self.log.info("Checking the BTC balance in every account")
-        tradelayer_checkingBalance(accounts, amount, conn, headers)
+        # self.log.info("Checking the BTC balance in every account")
+        # tradelayer_checkingBalance(accounts, amount, conn, headers)
 
 
         self.log.info("Creating new tokens  (lihki)")
@@ -114,7 +136,8 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         assert_equal(out['error'], None)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking the property: lihki")
@@ -150,14 +173,16 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         out = tradelayer_HTTP(conn, headers, False, "tl_new_id_registration",params)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Creating  Attestation from Notary Address to multisig")
         params = str([notaryAddr, multisig,""]).replace("'",'"')
         tradelayer_HTTP(conn, headers, True, "tl_attestation", params)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking attestations")
@@ -183,7 +208,8 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         assert_equal(out['error'], None)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking the offer in DEx")
@@ -224,7 +250,7 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         self.log.info("Persistence: checking the property lihki")
         params = str([4])
         out = tradelayer_HTTP(conn, headers, False, "tl_getproperty",params)
-        # self.log.info(out)
+        self.log.info(out)
         assert_equal(out['error'], None)
         assert_equal(out['result']['propertyid'],4)
         assert_equal(out['result']['issuer'],addresses[0])
@@ -278,7 +304,8 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         assert_equal(out['error'], None)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Checking the offer status")
         params = str([addresses[0]]).replace("'",'"')
@@ -296,7 +323,7 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         assert_equal(out['result'][0]['accepts'][0]['buyer'], addresses[1])
         assert_equal(out['result'][0]['accepts'][0]['amountdesired'], '1000.00000000')
         assert_equal(out['result'][0]['accepts'][0]['ltcstopay'], '1.00000000')
-        assert_equal(out['result'][0]['accepts'][0]['block'], 208)
+        assert_equal(out['result'][0]['accepts'][0]['block'], 206)
         assert_equal(out['result'][0]['accepts'][0]['blocksleft'], 250)
 
         self.log.info("2nd Restart for the node")
@@ -326,7 +353,7 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         assert_equal(out['result'][0]['accepts'][0]['buyer'], addresses[1])
         assert_equal(out['result'][0]['accepts'][0]['amountdesired'], '1000.00000000')
         assert_equal(out['result'][0]['accepts'][0]['ltcstopay'], '1.00000000')
-        assert_equal(out['result'][0]['accepts'][0]['block'], 208)
+        assert_equal(out['result'][0]['accepts'][0]['block'], 206)
         assert_equal(out['result'][0]['accepts'][0]['blocksleft'], 250)
 
 
@@ -335,7 +362,8 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         out = tradelayer_HTTP(conn, headers, True, "tl_send_dex_payment",params)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Checking token balance in seller address")
         params = str([addresses[0], 4]).replace("'",'"')
@@ -403,7 +431,8 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         assert_equal(out['error'], None)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Checking the property: dan ")
         params = str([5])
@@ -431,7 +460,8 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         # self.log.info(out)
         assert_equal(out['error'], None)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking the trade in orderbook")
@@ -496,7 +526,8 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         out = tradelayer_HTTP(conn, headers, True, "tl_sendtrade",params)
         assert_equal(out['error'], None)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Checking tokens balance for first address")
         params = str([addresses[0], 4]).replace("'",'"')
@@ -535,7 +566,8 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         assert_equal(out['error'], None)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking the commit")
@@ -604,7 +636,8 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         assert_equal(out['error'], None)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Withdrawal from channel ")
@@ -613,7 +646,8 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         assert_equal(out['error'], None)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking tokens balance for first address")
@@ -709,7 +743,8 @@ class PersistenceBasicsTest (BitcoinTestFramework):
 
 
         self.log.info("mining 1 more block")
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Checking tokens balance for first address again")
         params = str([addresses[0], 4]).replace("'",'"')
@@ -734,17 +769,18 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         # self.log.info(out)
         assert_equal(out['error'], None)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking the native contract")
-        params = str([6])
-        out = tradelayer_HTTP(conn, headers, True, "tl_getproperty",params)
+        params = '["1"]'
+        out = tradelayer_HTTP(conn, headers, False, "tl_getcontract",params)
         assert_equal(out['error'], None)
-        # self.log.info(out)
-        assert_equal(out['result']['propertyid'],6)
+        self.log.info(out)
+        assert_equal(out['result']['contractid'],1)
         assert_equal(out['result']['name'],'ALL/Lhk')
-        assert_equal(out['result']['issuer'], addresses[0])
+        assert_equal(out['result']['admin'], addresses[0])
         assert_equal(out['result']['notional size'], '1')
         assert_equal(out['result']['collateral currency'], '4')
         assert_equal(out['result']['margin requirement'], '0.1')
@@ -759,20 +795,21 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         hash = str(out['result']).replace("'","")
         # self.log.info(hash)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking orderbook")
         params = str(["ALL/Lhk", 1]).replace("'",'"')
-        out = tradelayer_HTTP(conn, headers, True, "tl_getcontract_orderbook",params)
+        out = tradelayer_HTTP(conn, headers, True, "tl_getcontract_orderbook", params)
         # self.log.info(out)
         assert_equal(out['error'], None)
         assert_equal(out['result'][0]['address'], addresses[1])
-        assert_equal(out['result'][0]['contractid'], 6)
+        assert_equal(out['result'][0]['contractid'], 1)
         assert_equal(out['result'][0]['amountforsale'], 10)
         assert_equal(out['result'][0]['tradingaction'], 1)
         assert_equal(out['result'][0]['effectiveprice'], '780.50000000')
-        assert_equal(out['result'][0]['block'], 224)
+        assert_equal(out['result'][0]['block'], 222)
 
         self.log.info("7th Restart for the node")
         self.restart_node(0)
@@ -786,13 +823,13 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         conn.connect()
 
         self.log.info("Persistence: checking the native contract")
-        params = str([6])
-        out = tradelayer_HTTP(conn, headers, True, "tl_getproperty",params)
+        params = '["1"]'
+        out = tradelayer_HTTP(conn, headers, True, "tl_getcontract",params)
         assert_equal(out['error'], None)
         # self.log.info(out)
-        assert_equal(out['result']['propertyid'],6)
+        assert_equal(out['result']['contractid'], 1)
         assert_equal(out['result']['name'],'ALL/Lhk')
-        assert_equal(out['result']['issuer'], addresses[0])
+        assert_equal(out['result']['admin'], addresses[0])
         assert_equal(out['result']['notional size'], '1')
         assert_equal(out['result']['collateral currency'], '4')
         assert_equal(out['result']['margin requirement'], '0.1')
@@ -806,11 +843,11 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         # self.log.info(out)
         assert_equal(out['error'], None)
         assert_equal(out['result'][0]['address'], addresses[1])
-        assert_equal(out['result'][0]['contractid'], 6)
+        assert_equal(out['result'][0]['contractid'], 1)
         assert_equal(out['result'][0]['amountforsale'], 10.00000000)
         assert_equal(out['result'][0]['tradingaction'], 1)
         assert_equal(out['result'][0]['effectiveprice'], '780.50000000')
-        assert_equal(out['result'][0]['block'], 224)
+        assert_equal(out['result'][0]['block'], 222)
 
         self.log.info("Persistence: checking LTC volume in DEx")
         params = str([4, 1, 300]).replace("'",'"')
@@ -826,18 +863,19 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         # self.log.info(out)
         assert_equal(out['error'], None)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking the oracle contract")
-        params = str([7])
-        out = tradelayer_HTTP(conn, headers, True, "tl_getproperty",params)
+        params = '["2"]'
+        out = tradelayer_HTTP(conn, headers, True, "tl_getcontract",params)
         assert_equal(out['error'], None)
         # self.log.info(out)
 
-        assert_equal(out['result']['propertyid'],7)
+        assert_equal(out['result']['contractid'], 2)
         assert_equal(out['result']['name'],'Oracle 1')
-        assert_equal(out['result']['issuer'], addresses[0])
+        assert_equal(out['result']['admin'], addresses[0])
         assert_equal(out['result']['notional size'], '1')
         assert_equal(out['result']['collateral currency'], '4')
         assert_equal(out['result']['margin requirement'], '0.1')
@@ -854,11 +892,12 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         # self.log.info(out)
         assert_equal(out['error'], None)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Checking the prices in oracle")
-        params = str([7])
-        out = tradelayer_HTTP(conn, headers, True, "tl_getproperty",params)
+        params = '["2"]'
+        out = tradelayer_HTTP(conn, headers, True, "tl_getcontract",params)
         assert_equal(out['error'], None)
         # self.log.info(out)
         assert_equal(out['result']['hight price'], '602.1')
@@ -877,14 +916,14 @@ class PersistenceBasicsTest (BitcoinTestFramework):
         conn.connect()
 
         self.log.info("Checking the oracle contract")
-        params = str([7])
-        out = tradelayer_HTTP(conn, headers, True, "tl_getproperty",params)
+        params = '["2"]'
+        out = tradelayer_HTTP(conn, headers, True, "tl_getcontract",params)
         assert_equal(out['error'], None)
         # self.log.info(out)
 
-        assert_equal(out['result']['propertyid'],7)
+        assert_equal(out['result']['contractid'], 2)
         assert_equal(out['result']['name'],'Oracle 1')
-        assert_equal(out['result']['issuer'], addresses[0])
+        assert_equal(out['result']['admin'], addresses[0])
         assert_equal(out['result']['notional size'], '1')
         assert_equal(out['result']['collateral currency'], '4')
         assert_equal(out['result']['margin requirement'], '0.1')

@@ -53,23 +53,25 @@ class FixedBasicsTest (BitcoinTestFramework):
 
         headers = {"Authorization": "Basic " + str_to_b64str(authpair)}
 
-        rAddress = "2N2zjPhEyPPEhuyyNuRZYJrFYLo2rY8Pcd7"
         addresses = []
-        accounts = ["john", "doe", "another"]
 
         conn = http.client.HTTPConnection(url.hostname, url.port)
         conn.connect()
+
+        out = tradelayer_HTTP(conn, headers, False, "getnewaddress")
+        rAddress = out['result']
+        self.log.info(rAddress)
 
         params1 = str([200, rAddress]).replace("'",'"')
         tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Creating sender address")
-        addresses = tradelayer_createAddresses(conn, headers)
+        num = 3
+        addresses = tradelayer_createAddresses(num, conn, headers)
 
         # funding another address with NO KYC
-        params = str(["bob"]).replace("'",'"')
-        out = tradelayer_HTTP(conn, headers, True, "getnewaddress", params)
+        out = tradelayer_HTTP(conn, headers, True, "getnewaddress")
         noallowed = out['result']
         # self.log.info(notaryAddr)
 
@@ -79,11 +81,9 @@ class FixedBasicsTest (BitcoinTestFramework):
         self.nodes[0].generate(1)
 
         self.log.info("Funding addresses with BTC")
-        amount = 0.2
+        amount = 1
         tradelayer_fundingAddresses(addresses, amount, conn, headers)
 
-        self.log.info("Checking the BTC balance in every account")
-        tradelayer_checkingBalance(accounts, amount, conn, headers)
 
         self.log.info("Creating new tokens (sendissuancefixed)")
         array = [0]
@@ -92,7 +92,13 @@ class FixedBasicsTest (BitcoinTestFramework):
         # self.log.info(out)
 
         self.log.info("Self Attestation for addresses")
-        tradelayer_selfAttestation(addresses,conn, headers)
+        for addr in addresses:
+            params = str([addr,addr,""]).replace("'",'"')
+            tradelayer_HTTP(conn, headers, False, "tl_attestation", params)
+
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
+
 
         self.log.info("Checking attestations")
         out = tradelayer_HTTP(conn, headers, False, "tl_list_attestation")
@@ -143,7 +149,8 @@ class FixedBasicsTest (BitcoinTestFramework):
         out = tradelayer_HTTP(conn, headers, True, "tl_send",params)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking tokens in receiver address (must be 0.0000000)")
@@ -160,7 +167,8 @@ class FixedBasicsTest (BitcoinTestFramework):
         out = tradelayer_HTTP(conn, headers, True, "tl_send",params)
         # self.log.info(out)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking tokens in receiver address")
@@ -178,7 +186,8 @@ class FixedBasicsTest (BitcoinTestFramework):
         # self.log.info(out)
         assert_equal(out['error'], None)
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking tokens in receiver address and last address")
@@ -204,7 +213,8 @@ class FixedBasicsTest (BitcoinTestFramework):
         # self.log.info(out)
         assert_equal(out['error']['message'], 'Property identifier does not refer to a managed property')
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Checking issuer's balance now")
@@ -215,7 +225,8 @@ class FixedBasicsTest (BitcoinTestFramework):
         assert_equal(out['result']['balance'],'1000.00000000')
         assert_equal(out['result']['reserve'],'0.00000000')
 
-        self.nodes[0].generate(1)
+        params1 = str([1, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
 
         self.log.info("Sending 777 tokens from issuer to himself (tl_send)")

@@ -53,30 +53,37 @@ class ManagedBasicsTest (BitcoinTestFramework):
 
         headers = {"Authorization": "Basic " + str_to_b64str(authpair)}
 
-        rAddress = "2N2zjPhEyPPEhuyyNuRZYJrFYLo2rY8Pcd7"
-        addresses = []
-        accounts = ["john", "doe", "another"]
-
         conn = http.client.HTTPConnection(url.hostname, url.port)
         conn.connect()
+
+        out = tradelayer_HTTP(conn, headers, False, "getnewaddress")
+        rAddress = out['result']
+        self.log.info(rAddress)
+
+        addresses = []
 
         params1 = str([200, rAddress]).replace("'",'"')
         tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Creating sender address")
-        addresses = tradelayer_createAddresses(conn, headers)
+        amount = 3
+        addresses = tradelayer_createAddresses(amount, conn, headers)
 
         self.log.info("Funding addresses with BTC")
-        amount = 0.1
+        amount = 1
         tradelayer_fundingAddresses(addresses, amount, conn, headers)
 
         # self.log.info("Checking the BTC balance in every account")
         # tradelayer_checkingBalance(accounts, amount, conn, headers)
 
         self.log.info("Self Attestation for addresses")
-        tradelayer_selfAttestation(addresses,conn, headers)
+        # tradelayer_selfAttestation(addresses,conn, headers)
+        for addr in addresses:
+            params = str([addr,addr,""]).replace("'",'"')
+            out = tradelayer_HTTP(conn, headers, False, "tl_attestation", params)
+            self.log.info(out)
 
-        params1 = str([1, rAddress]).replace("'",'"')
+        params1 = str([2, rAddress]).replace("'",'"')
         tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         self.log.info("Checking attestations")

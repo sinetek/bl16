@@ -2161,6 +2161,7 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
         if (i > 0) {
             blockundo.vtxundo.push_back(CTxUndo());
         }
+
         UpdateCoins(tx, view, i == 0 ? undoDummy : blockundo.vtxundo.back(), pindex->nHeight, removedCoins);
     }
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;

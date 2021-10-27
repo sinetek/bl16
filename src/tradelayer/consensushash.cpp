@@ -468,7 +468,6 @@ uint256 GetConsensusHash()
 
     // Vesting addresses
     // Placeholders: "addresses"
-    std::sort (vestingAddresses.begin(), vestingAddresses.end());
     for (const auto& v : vestingAddresses)
     {
         const std::string& address = v;

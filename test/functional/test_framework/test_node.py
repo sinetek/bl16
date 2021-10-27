@@ -33,7 +33,7 @@ from .util import (
     EncodeDecimal,
 )
 
-BITCOIND_PROC_WAIT_TIMEOUT = 60
+BITCOIND_PROC_WAIT_TIMEOUT = 180
 
 
 class FailedToStartError(Exception):
@@ -74,7 +74,7 @@ class TestNode():
         self.stderr_dir = os.path.join(self.datadir, "stderr")
         self.chain = chain
         self.rpchost = rpchost
-        self.rpc_timeout = timewait
+        self.rpc_timeout = 180
         self.binary = bitcoind
         self.coverage_dir = coverage_dir
         self.cwd = cwd

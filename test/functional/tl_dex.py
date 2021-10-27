@@ -24,8 +24,18 @@ class DExBasicsTest (BitcoinTestFramework):
         rpcauth = "rpcauth=rt:93648e835a54c573682c2eb19f882535$7681e9c5b74bdd85e78166031d2058e1069b3ed7ed967c93fc63abba06f31144"
         rpcuser = "rpcuser=rpcuser💻"
         rpcpassword = "rpcpassword=rpcpassword🔑"
+        addresstype = "addresstype=legacy"
+        fallbackfee = "fallbackfee=0.0002"
+        settxfee = "settxfee=0.0001"
+        datasize = "datacarriersize=80"
         with open(os.path.join(self.options.tmpdir+"/node0", "bitcoin.conf"), 'a', encoding='utf8') as f:
             f.write(rpcauth+"\n")
+            f.write(rpcuser+"\n")
+            f.write(rpcpassword+"\n")
+            f.write(addresstype+"\n")
+            f.write(fallbackfee+"\n")
+            f.write(settxfee+"\n")
+            f.write(datasize+"\n")
 
     # NOTE: this is the basis, of course, we can build more objects and classes
     # in order to do a better work
@@ -34,8 +44,6 @@ class DExBasicsTest (BitcoinTestFramework):
 
         self.log.info("Preparing the workspace...")
 
-        # mining 200 blocks
-        self.nodes[0].generate(200)
 
         ################################################################################
         # Checking RPC tl_senddexoffer and tl_getactivedexsells (in the first 200 blocks of the chain) #
@@ -54,6 +62,14 @@ class DExBasicsTest (BitcoinTestFramework):
 
         conn = http.client.HTTPConnection(url.hostname, url.port)
         conn.connect()
+
+
+        out = tradelayer_HTTP(conn, headers, False, "getnewaddress")
+        rAddress = out['result']
+        self.log.info(rAddress)
+
+        params1 = str([200, rAddress]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "generatetoaddress", params1)
 
         adminAddress = '2N6Vt5sifX5QXD51uPAGMPhKaVu2DQADqHY'
         privkey = 'cMvz1UGdCXrqiKpDxNFPAbfSuqiGv7WJqxAdXfk2kykkWtGXzUYD'
