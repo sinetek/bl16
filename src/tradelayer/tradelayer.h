@@ -34,7 +34,7 @@ using std::string;
 
 typedef boost::rational<boost::multiprecision::checked_int128_t> rational_t;
 
-const int MAX_STATE_HISTORY = 50;
+int const MAX_STATE_HISTORY = 200;
 
 #define MAX_PROPERTY_N (0x80000003UL)
 
@@ -567,7 +567,7 @@ extern std::map<uint32_t, int64_t> cachefees;
 extern std::map<uint32_t, int64_t> cachefees_oracles;
 
 //! Vesting receiver addresses
-extern std::vector<std::string> vestingAddresses;
+extern std::set<std::string> vestingAddresses;
 
 //!Contract upnls
 extern std::map<std::string, int64_t> sum_upnls;

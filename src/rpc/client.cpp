@@ -172,6 +172,237 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "createwallet", 4, "avoid_reuse"},
     { "getnodeaddresses", 0, "count"},
     { "stop", 0, "wait" },
+
+    /* Trade Layer - payload creation */
+   { "tl_createpayload_sendactivation", 0, "arg0"},
+   { "tl_createpayload_sendactivation", 1, "arg1"},
+   { "tl_createpayload_sendactivation", 2, "arg2"},
+   { "tl_createpayload_senddeactivation", 0, "arg0"},
+   { "tl_createpayload_sendalert", 0, "arg0"},
+   { "tl_createpayload_sendalert", 1, "arg1"},
+   { "tl_createpayload_simplesend", 0, "arg0" },
+
+   { "tl_createpayload_dexsell", 0, "arg0" },
+   { "tl_createpayload_dexsell", 3, "arg3" },
+   { "tl_createpayload_dexsell", 5, "arg5" },
+   { "tl_createpayload_dexaccept", 0, "arg0" },
+   { "tl_createpayload_issuancefixed", 0, "arg0" },
+   { "tl_createpayload_issuancefixed", 1, "arg1" },
+   { "tl_createpayload_issuancefixed", 5, "arg5" },
+   { "tl_createpayload_issuancemanaged", 0, "arg0" },
+   { "tl_createpayload_issuancemanaged", 1, "arg1" },
+   { "tl_createpayload_issuancemanaged", 5, "arg5" },
+
+   { "tl_createpayload_sendgrant", 0, "arg0" },
+   { "tl_createpayload_sendrevoke", 0, "arg0" },
+   { "tl_createpayload_changeissuer", 0, "arg0" },
+   { "tl_createpayload_sendtrade", 0, "arg0" },
+   { "tl_createpayload_sendtrade", 2, "arg2" },
+   { "tl_createpayload_createcontract", 0, "arg0"},
+   { "tl_createpayload_createcontract", 1, "arg1"},
+   { "tl_createpayload_createcontract", 3, "arg3"},
+   { "tl_createpayload_createcontract", 4, "arg4"},
+   { "tl_createpayload_createcontract", 5, "arg5"},
+   { "tl_createpayload_createcontract", 6, "arg6"},
+   { "tl_createpayload_createcontract", 7, "arg7"},
+   { "tl_createpayload_createcontract", 8, "arg8"},
+
+
+   { "tl_createpayload_tradecontract", 2, "arg2"},
+   { "tl_createpayload_tradecontract", 3, "arg3"},
+   { "tl_createpayload_cancelallcontractsbyaddress", 0, "arg0"},
+   { "tl_createpayload_closeposition", 0, "arg0" },
+   { "tl_createpayload_sendissuance_pegged", 0, "arg0" },
+   { "tl_createpayload_sendissuance_pegged", 1, "arg1" },
+   { "tl_createpayload_sendissuance_pegged", 3, "arg3" },
+   { "tl_createpayload_cancelorderbyblock", 0, "arg0"},
+   { "tl_createpayload_cancelorderbyblock", 1, "arg1" },
+   { "tl_createpayload_dexoffer", 0, "arg0" },
+   { "tl_createpayload_dexoffer", 3, "arg3" },
+   { "tl_createpayload_dexoffer", 6, "arg6" },
+   { "tl_createpayload_senddexaccept", 1, "arg1" },
+   { "tl_createpayload_sendvesting", 0, "arg0"},
+   { "tl_createpayload_instant_trade", 0, "arg0"},
+   { "tl_createpayload_instant_trade", 2, "arg2"},
+   { "tl_createpayload_instant_trade", 4, "arg4"},
+
+   { "tl_createpayload_contract_instant_trade", 0, "arg0"},
+   { "tl_createpayload_contract_instant_trade", 2, "arg2"},
+   { "tl_createpayload_contract_instant_trade", 4, "arg4"},
+   // { "tl_createpayload_contract_instant_trade", 5, "arg5"},
+
+   { "tl_createpayload_create_oraclecontract", 1, "arg1"},
+   { "tl_createpayload_create_oraclecontract", 2, "arg2"},
+   { "tl_createpayload_create_oraclecontract", 3, "arg3"},
+   { "tl_createpayload_create_oraclecontract", 4, "arg4"},
+   { "tl_createpayload_create_oraclecontract", 5, "arg5"},
+   { "tl_createpayload_create_oraclecontract", 7, "arg7"},
+
+   { "tl_createpayload_instant_ltc_trade", 0, "arg0"},
+   { "tl_createpayload_instant_ltc_trade", 3, "arg3"},
+
+   { "tl_createpayload_pnl_update", 0, "arg0"},
+   { "tl_createpayload_pnl_update", 2, "arg2"},
+   { "tl_createpayload_pnl_update", 3, "arg3"},
+   { "tl_createpayload_pnl_update", 4, "arg4"},
+
+   { "tl_createpayload_setoracle", 1, "arg1" },
+   { "tl_createpayload_setoracle", 2, "arg2" },
+   { "tl_createpayload_setoracle", 3, "arg3" },
+
+   { "tl_createpayload_commit_tochannel", 0, "arg0" },
+
+   { "tl_createpayload_withdrawal_fromchannel", 0, "arg0" },
+
+
+   { "tl_createpayload_transfer", 0, "arg0"},
+   { "tl_createpayload_transfer", 1, "arg1"},
+
+
+   /* Trade Layer - raw transaction calls */
+   { "tl_createrawtx_reference", 2, "arg2" },
+   { "tl_createrawtx_input", 2, "arg2" },
+   { "tl_createrawtx_change", 1, "arg1" },
+   { "tl_createrawtx_change", 3, "arg3" },
+   { "tl_createrawtx_change", 4, "arg4" },
+
+
+   /* Trade Layer - transaction calls */
+   { "tl_send", 2, "arg2" },
+   // { "tl_sendvesting", 2, "arg2" },
+   { "tl_sendissuancemanaged", 1, "arg1" },
+   { "tl_sendissuancemanaged", 2, "arg2" },
+   { "tl_sendissuancemanaged", 6, "arg6" },
+
+   { "tl_sendissuancefixed", 1, "arg1" },
+   { "tl_sendissuancefixed", 2, "arg2" },
+   { "tl_sendissuancefixed", 7, "arg7" },
+
+   { "tl_createcontract", 1, "arg1"},
+   { "tl_createcontract", 2, "arg2"},
+   { "tl_createcontract", 4, "arg4"},
+   { "tl_createcontract", 5, "arg5"},
+   { "tl_createcontract", 6, "arg6"},
+   { "tl_createcontract", 7, "arg7"},
+   { "tl_createcontract", 8, "arg8"},
+   { "tl_createcontract", 9, "arg9"},
+
+   { "tl_create_oraclecontract", 2, "arg2"},
+   { "tl_create_oraclecontract", 3, "arg3"},
+   { "tl_create_oraclecontract", 4, "arg4"},
+   { "tl_create_oraclecontract", 5, "arg5"},
+   { "tl_create_oraclecontract", 7, "arg7"},
+   { "tl_create_oraclecontract", 8, "arg8"},
+   { "tl_tradecontract", 3, "arg3"},
+   { "tl_tradecontract", 4, "arg4"},
+   { "tl_sendgrant", 2, "arg2"},
+   { "tl_getcontract_orderbook", 1, "arg1" },
+   { "tl_cancelorderbyblock", 1, "arg1"},
+   { "tl_cancelorderbyblock", 2, "arg2" },
+   { "tl_closeposition", 1, "arg1" },
+   { "tl_sendtrade", 1, "arg1" },
+   { "tl_sendtrade", 3, "arg3" },
+   { "tl_getmax_peggedcurrency", 1, "arg1" },
+   { "tl_sendissuance_pegged", 1, "arg1" },
+   { "tl_sendissuance_pegged", 2, "arg2" },
+   { "tl_sendissuance_pegged", 4, "arg3" },
+   { "tl_sendissuance_pegged", 6, "arg5" },
+   { "tl_send_pegged", 3, "arg3" },
+   { "tl_senddexoffer", 1, "arg1" },
+   { "tl_senddexoffer", 4, "arg4" },
+   { "tl_senddexoffer", 7, "arg7" },
+   { "tl_listtransactions", 1, "arg1" },
+   { "tl_listtransactions", 2, "arg2" },
+   { "tl_listtransactions", 3, "arg3" },
+   { "tl_listtransactions", 4, "arg4" },
+   { "tl_setoracle", 2, "arg2" },
+   { "tl_setoracle", 3, "arg3" },
+   { "tl_setoracle", 4, "arg4" },
+   { "tl_commit_tochannel", 2, "arg2" },
+   { "tl_commit_tochannel", 4, "arg4" },
+   { "tl_withdrawal_fromchannel", 2, "arg2" },
+   { "tl_withdrawal_fromchannel", 4, "arg4" },
+
+   { "tl_sendactivation", 1, "arg1"},
+   { "tl_sendactivation", 2, "arg2"},
+   { "tl_sendactivation", 3, "arg3"},
+
+   {"tl_senddeactivation", 1, "arg1"},
+
+   {"tl_sendcanceltradesbypair", 1, "arg1"},
+   {"tl_sendcanceltradesbypair", 2, "arg2"},
+
+   {"tl_sendcanceltradesbyprice", 1, "arg1"},
+   {"tl_sendcanceltradesbyprice", 3, "arg3"},
+
+   /* Trade Layer - data retrieval calls */
+   { "tl_setautocommit", 0, "arg0" },
+   { "tl_getgrants", 0, "arg0"},
+   { "tl_getbalance", 1, "arg1" },
+   { "tl_getreserve", 1, "arg1" },
+   { "tl_getproperty", 0, "arg0" },
+   { "tl_getupnl", 1, "arg1" },
+   { "tl_getpnl", 1, "arg1" },
+   { "tl_listproperties", 0, "verbose" },
+   { "tl_listtransactions", 1, "arg1" },
+   { "tl_listtransactions", 2, "arg2" },
+   { "tl_listtransactions", 3, "arg3" },
+   { "tl_listtransactions", 4, "arg4" },
+   { "tl_getallbalancesforid", 0, "arg0" },
+   { "tl_listblocktransactions", 0, "arg0" },
+   { "tl_getalltxonblock", 0, "arg0" },
+   { "tl_gettradehistory_unfiltered", 0, "arg0" },
+   { "tl_getpeggedhistory",0, "arg0" },
+   { "tl_getorderbook",0, "arg0" },
+   { "tl_getorderbook",1, "arg1" },
+   { "tl_getcontract_reserve", 1 ,"arg1" },
+   { "tl_getmargin", 1, "arg1" },
+   { "tl_senddexaccept", 2, "arg2" },
+   { "tl_senddexaccept", 4, "arg4" },
+   { "tl_getmarketprice", 0, "arg0" },
+   {"tl_getaverage_entry",1,"arg1" },
+   { "tl_getcache", 0, "arg0" }, // NOTE: only to test persistence
+   { "tl_get_channelreserve", 1, "arg1" },
+   { "tl_check_kyc", 1, "arg1" },
+   { "tl_getoraclecache", 0, "arg0" },
+
+   { "tl_get_ltcvolume", 0, "arg1" },
+   { "tl_get_ltcvolume", 1, "arg2" },
+   { "tl_get_ltcvolume", 2, "arg3" },
+
+   { "tl_getmdexvolume", 0, "arg1" },
+   { "tl_getmdexvolume", 1, "arg2" },
+   { "tl_getmdexvolume", 2, "arg3" },
+   { "tl_getmdexvolume", 3, "arg4" },
+   { "tl_getcurrencytotal", 0, "arg0" },
+
+   { "tl_gettradehistory", 0, "arg0" },
+
+   {"tl_getupnl", 2, "arg2"},
+
+   {"tl_get_channelremaining", 2, "arg2"},
+
+   { "tl_getmdextradehistoryforaddress", 1 , "arg1"},
+   { "tl_getmdextradehistoryforaddress", 2, "arg2" },
+
+   { "tl_getdextradehistoryforaddress", 1 , "arg1"},
+   { "tl_getdextradehistoryforaddress", 2, "arg2" },
+
+   { "tl_gettradehistoryforpair", 0, "arg0" },
+   { "tl_gettradehistoryforpair", 1, "arg1" },
+   { "tl_gettradehistoryforpair", 2, "arg2" },
+
+   { "tl_getchannel_historyforpair", 1, "arg1" },
+   { "tl_getchannel_historyforpair", 2, "arg2" },
+   { "tl_getchannel_historyforpair", 3, "arg3" },
+
+   { "tl_getchannel_historyforaddress", 2 , "arg2"},
+   { "tl_getchannel_historyforaddress", 3, "arg3" },
+
+
+   { "tl_getchannel_tokenhistoryforaddress", 2 , "arg2"},
+   { "tl_getchannel_tokenhistoryforaddress", 3, "arg3" },
+
 };
 // clang-format on
 

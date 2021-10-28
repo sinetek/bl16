@@ -189,7 +189,7 @@ bool CMPSPInfo::updateSP(uint32_t propertyId, const Entry& info)
 
   // DB value for property entry
   CDataStream ssSpValue(SER_DISK, CLIENT_VERSION);
-  // ssSpValue.reserve(GetSerializeSize(info, ssSpValue.GetType(), ssSpValue.GetVersion()));
+  ssSpValue.reserve(GetSerializeSize(info,CLIENT_VERSION));
   ssSpValue << info;
   leveldb::Slice slSpValue(&ssSpValue[0], ssSpValue.size());
 

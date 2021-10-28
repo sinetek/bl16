@@ -1,6 +1,7 @@
 #include <tradelayer/register.h>
 #include <tradelayer/ce.h>
 #include <tradelayer/log.h>
+#include <tradelayer/tally.h>
 #include <tradelayer/tradelayer.h>
 #include <tradelayer/uint256_extensions.h>
 #include <tradelayer/externfns.h>

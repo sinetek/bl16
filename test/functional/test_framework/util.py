@@ -595,3 +595,48 @@ def find_vout_for_address(node, txid, addr):
         if any([addr == a for a in tx["vout"][i]["scriptPubKey"]["addresses"]]):
             return i
     raise RuntimeError("Vout not found for address: txid=%s, addr=%s" % (txid, addr))
+
+
+
+# Tradelayer functions
+######################
+
+def tradelayer_HTTP(conn, headers, flag, method, params=None):
+    conn.connect()
+    if params == None:
+        payload = '{"method": "'+method+'"}'
+    else:
+        payload = '{"method": "'+method+'", "params":'+params+'}'
+    conn.request('POST', '/', payload, headers)
+    resp = conn.getresponse()
+    input = (resp.read().decode('utf-8'))
+    out = json.loads(input)
+    if flag:
+        assert_equal(resp.status, 200)
+    return out
+
+def tradelayer_createAddresses(amount, conn, headers):
+    addresses = []
+    for i in range(0,amount):
+        address = str(i)
+        params = str([address]).replace("'",'"')
+        out = tradelayer_HTTP(conn, headers, True, "getnewaddress", params)
+        addresses.append(out['result'])
+    return addresses
+
+def tradelayer_fundingAddresses(addresses, amount, conn, headers):
+    for addr in addresses:
+        params1 = str([addr, amount]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "sendtoaddress", params1)
+
+def tradelayer_checkingBalance(accounts, amount, conn, headers):
+    for ac in accounts:
+        params = str([ac]).replace("'",'"')
+        out = tradelayer_HTTP(conn, headers, True, "getbalance", params)
+        assert_equal(out['error'], None)
+        assert_equal(out['result'], amount)
+
+def tradelayer_selfAttestation(addresses,conn, headers):
+    for addr in addresses:
+        params = str([addr,addr,""]).replace("'",'"')
+        tradelayer_HTTP(conn, headers, False, "tl_attestation", params)

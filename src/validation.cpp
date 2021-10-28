@@ -51,6 +51,8 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
 
+#include <tradelayer/tradelayer.h>
+
 #if defined(NDEBUG)
 # error "Bitcoin cannot be compiled without assertions."
 #endif
@@ -232,6 +234,12 @@ bool TestLockPointValidity(const LockPoints* lp)
 
     // LockPoints still valid
     return true;
+}
+
+int GetHeight()
+{
+    LOCK(cs_main);
+    return ::ChainActive().Height();
 }
 
 bool CheckSequenceLocks(const CTxMemPool& pool, const CTransaction& tx, int flags, LockPoints* lp, bool useExistingLockPoints)
@@ -1424,12 +1432,14 @@ void CChainState::InvalidBlockFound(CBlockIndex *pindex, const BlockValidationSt
     }
 }
 
-void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo &txundo, int nHeight)
+void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo &txundo, int nHeight, std::shared_ptr<std::map<COutPoint, Coin>> removedCoins)
 {
     // mark inputs spent
     if (!tx.IsCoinBase()) {
         txundo.vprevout.reserve(tx.vin.size());
         for (const CTxIn &txin : tx.vin) {
+            if (removedCoins)
+                removedCoins->emplace(txin.prevout, inputs.AccessCoin(txin.prevout));
             txundo.vprevout.emplace_back();
             bool is_spent = inputs.SpendCoin(txin.prevout, &txundo.vprevout.back());
             assert(is_spent);
@@ -1442,7 +1452,7 @@ void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo &txund
 void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight)
 {
     CTxUndo txundo;
-    UpdateCoins(tx, inputs, txundo, nHeight);
+    UpdateCoins(tx, inputs, txundo, nHeight, nullptr);
 }
 
 bool CScriptCheck::operator()() {
@@ -1894,7 +1904,7 @@ static int64_t nBlocksTotal = 0;
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
  *  can fail if those validity checks fail (among other reasons). */
 bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state, CBlockIndex* pindex,
-                  CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck)
+                  CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck, std::shared_ptr<std::map<COutPoint, Coin>> removedCoins)
 {
     AssertLockHeld(cs_main);
     assert(pindex);
@@ -2151,7 +2161,8 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
         if (i > 0) {
             blockundo.vtxundo.push_back(CTxUndo());
         }
-        UpdateCoins(tx, view, i == 0 ? undoDummy : blockundo.vtxundo.back(), pindex->nHeight);
+
+        UpdateCoins(tx, view, i == 0 ? undoDummy : blockundo.vtxundo.back(), pindex->nHeight, removedCoins);
     }
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs (%.2fms/blk)]\n", (unsigned)block.vtx.size(), MILLI * (nTime3 - nTime2), MILLI * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : MILLI * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * MICRO, nTimeConnect * MILLI / nBlocksTotal);
@@ -2492,7 +2503,15 @@ bool CChainState::DisconnectTip(BlockValidationState& state, const CChainParams&
     UpdateTip(pindexDelete->pprev, chainparams);
     // Let wallets know transactions went from 1-confirmed to
     // 0-confirmed or conflicted:
+
+    //! Trade Layer: begin block disconnect notification
+    mastercore_handler_disc_begin(pindexDelete->nHeight, pindexDelete);
+
     GetMainSignals().BlockDisconnected(pblock, pindexDelete);
+
+    //! Trade Layer: end of block disconnect notification
+    mastercore_handler_disc_end(pindexDelete->nHeight, pindexDelete);
+
     return true;
 }
 
@@ -2563,13 +2582,17 @@ bool CChainState::ConnectTip(BlockValidationState& state, const CChainParams& ch
         pthisBlock = pblock;
     }
     const CBlock& blockConnecting = *pthisBlock;
+
+    // Map used by Trade Layer to track removals from the UTXO DB for this block.
+    std::shared_ptr<std::map<COutPoint, Coin>> removedCoins = std::make_shared<std::map<COutPoint, Coin>>();
+
     // Apply the block atomically to the chain state.
     int64_t nTime2 = GetTimeMicros(); nTimeReadFromDisk += nTime2 - nTime1;
     int64_t nTime3;
     LogPrint(BCLog::BENCH, "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * MILLI, nTimeReadFromDisk * MICRO);
     {
         CCoinsViewCache view(&CoinsTip());
-        bool rv = ConnectBlock(blockConnecting, state, pindexNew, view, chainparams);
+        bool rv = ConnectBlock(blockConnecting, state, pindexNew, view, chainparams, false, removedCoins);
         GetMainSignals().BlockChecked(blockConnecting, state);
         if (!rv) {
             if (state.IsInvalid())
@@ -2589,12 +2612,32 @@ bool CChainState::ConnectTip(BlockValidationState& state, const CChainParams& ch
         return false;
     int64_t nTime5 = GetTimeMicros(); nTimeChainState += nTime5 - nTime4;
     LogPrint(BCLog::BENCH, "  - Writing chainstate: %.2fms [%.2fs (%.2fms/blk)]\n", (nTime5 - nTime4) * MILLI, nTimeChainState * MICRO, nTimeChainState * MILLI / nBlocksTotal);
+
+    //! Trade Layer: transaction position within the block
+    unsigned int nTxIdx = 0;
+    //! Trade Layer: number of meta transactions found
+    unsigned int nNumMetaTxs = 0;
+
+    //! Trade Layer: begin block connect notification
+    {
+       LOCK(cs_main);
+       // LogPrint("handler", "Trade Layer handler: block connect begin [height: %d]\n", GetHeight());
+       mastercore_handler_block_begin(GetHeight(), pindexNew);
+    }
+
     // Remove conflicting transactions from the mempool.;
     mempool.removeForBlock(blockConnecting.vtx, pindexNew->nHeight);
     disconnectpool.removeForBlock(blockConnecting.vtx);
     // Update m_chain & related variables.
     m_chain.SetTip(pindexNew);
     UpdateTip(pindexNew, chainparams);
+
+    for(const CTransactionRef& tx : blockConnecting.vtx){
+        //! Trade Layer: new confirmed transaction notification
+        if (mastercore_handler_tx(*tx, pindexNew->nHeight, nTxIdx++, pindexNew, removedCoins)) ++nNumMetaTxs;
+    }
+
+    mastercore_handler_block_end(pindexNew->nHeight, pindexNew, nNumMetaTxs);
 
     int64_t nTime6 = GetTimeMicros(); nTimePostConnect += nTime6 - nTime5; nTimeTotal += nTime6 - nTime1;
     LogPrint(BCLog::BENCH, "  - Connect postprocess: %.2fms [%.2fs (%.2fms/blk)]\n", (nTime6 - nTime5) * MILLI, nTimePostConnect * MICRO, nTimePostConnect * MILLI / nBlocksTotal);

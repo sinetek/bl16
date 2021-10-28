@@ -1787,6 +1787,7 @@ bool CMPTransaction::interpret_Instant_Trade()
 
   if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly || true)
   {
+		  PrintToLog("\t interpret_Instant_Trade\n");
       PrintToLog("\t version: %d\n", version);
       PrintToLog("\t messageType: %d\n",type);
       PrintToLog("\t property: %d\n", property);
@@ -2172,6 +2173,8 @@ int CMPTransaction::interpretPacket()
         return (PKT_ERROR -2);
     }
 
+		PrintToLog("%s(): type: %d\n",__func__, type);
+
     LOCK(cs_tally);
 
     switch (type)
@@ -2273,6 +2276,7 @@ int CMPTransaction::interpretPacket()
             return logicMath_Withdrawal_FromChannel();
 
         case MSC_TYPE_INSTANT_TRADE:
+				    PrintToLog("%s(): case MSC_TYPE_INSTANT_TRADE\n",__func__);
             return logicMath_Instant_Trade();
 
         case MSC_TYPE_TRANSFER:
@@ -2450,7 +2454,7 @@ int CMPTransaction::logicMath_SendVestingTokens()
   assert(update_tally_map(sender, ALL, -nValue, UNVESTED));
   assert(update_tally_map(receiver, ALL, nValue, UNVESTED));
 
-  vestingAddresses.push_back(receiver);
+  vestingAddresses.insert(receiver);
 
   return 0;
 }
@@ -4293,7 +4297,6 @@ int CMPTransaction::logicMath_Withdrawal_FromChannel()
 int CMPTransaction::logicMath_Instant_Trade()
 {
   int rc = 0;
-
   if (!IsTransactionTypeAllowed(block, type, version)) {
       PrintToLog("%s(): rejected: type %d or version %d not permitted for property %d at block %d\n",
               __func__,
@@ -4334,7 +4337,6 @@ int CMPTransaction::logicMath_Instant_Trade()
   }
 
   Channel &chn = it->second;
-
 
   // using first address data
   int kyc_id;
@@ -4490,14 +4492,11 @@ int CMPTransaction::logicMath_Transfer()
 
     Channel& nwChn =  itt->second;
 
-    if(!chn.updateChannelBal(address, propertyId, -amount_transfered)){
+		PrintToLog("%s(): address: %s, receiver: %s, special: %s, propertyId: %d, amount_transfered: %d\n", __func__, address, receiver, special, propertyId, amount_transfered);
+
+    if(!chn.updateChannelBal(sender, propertyId, -amount_transfered) || !nwChn.updateChannelBal(receiver, propertyId, amount_transfered)){
         PrintToLog("%s(): withdrawal is not possible\n",__func__);
         return (PKT_ERROR_CHANNELS -17);
-    }
-
-    if(!nwChn.updateChannelBal(address, propertyId, amount_transfered)){
-        PrintToLog("%s(): withdrawal is not possible\n",__func__);
-        return (PKT_ERROR_CHANNELS -18);
     }
 
     // recordNewTransfer
